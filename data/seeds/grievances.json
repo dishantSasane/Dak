@@ -1,0 +1,332 @@
+[
+ {
+  "grievance_id": "GRV-2025-1001",
+  "policy_number": "MOT-2022-2521",
+  "raised_date": "2025-03-21",
+  "category": "mis-selling",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2025-04-05"
+ },
+ {
+  "grievance_id": "GRV-2025-1002",
+  "policy_number": "MOT-2022-2521",
+  "raised_date": "2025-02-04",
+  "category": "mis-selling",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2025-03-04"
+ },
+ {
+  "grievance_id": "GRV-2026-1003",
+  "policy_number": "ASP-2022-8969",
+  "raised_date": "2026-04-28",
+  "category": "premium_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2026-05-04"
+ },
+ {
+  "grievance_id": "GRV-2025-1004",
+  "policy_number": "ASP-2022-8969",
+  "raised_date": "2025-01-26",
+  "category": "service_quality",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2025-02-09"
+ },
+ {
+  "grievance_id": "GRV-2025-1005",
+  "policy_number": "ASP-2022-8969",
+  "raised_date": "2025-08-06",
+  "category": "rejection_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "escalated",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2025-1006",
+  "policy_number": "TRM-2022-1990",
+  "raised_date": "2025-10-01",
+  "category": "claim_delay",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "escalated",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2025-1007",
+  "policy_number": "TRM-2023-8359",
+  "raised_date": "2025-08-23",
+  "category": "premium_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2025-09-08"
+ },
+ {
+  "grievance_id": "GRV-2025-1008",
+  "policy_number": "TRM-2023-8359",
+  "raised_date": "2025-11-11",
+  "category": "premium_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2025-11-23"
+ },
+ {
+  "grievance_id": "GRV-2025-1009",
+  "policy_number": "TRM-2023-8359",
+  "raised_date": "2025-05-03",
+  "category": "premium_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "open",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2026-1010",
+  "policy_number": "ASP-2022-9678",
+  "raised_date": "2026-04-04",
+  "category": "premium_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "open",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2026-1011",
+  "policy_number": "ASP-2022-9678",
+  "raised_date": "2026-05-05",
+  "category": "mis-selling",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2026-05-12"
+ },
+ {
+  "grievance_id": "GRV-2025-1012",
+  "policy_number": "MOT-2022-7763",
+  "raised_date": "2025-02-13",
+  "category": "premium_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "open",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2025-1013",
+  "policy_number": "MOT-2022-7763",
+  "raised_date": "2025-07-29",
+  "category": "claim_delay",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2025-08-04"
+ },
+ {
+  "grievance_id": "GRV-2025-1014",
+  "policy_number": "MOT-2022-7763",
+  "raised_date": "2025-08-08",
+  "category": "claim_delay",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2025-08-23"
+ },
+ {
+  "grievance_id": "GRV-2026-1015",
+  "policy_number": "TRM-2024-7451",
+  "raised_date": "2026-08-01",
+  "category": "premium_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "escalated",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2025-1016",
+  "policy_number": "TRM-2024-7451",
+  "raised_date": "2025-09-28",
+  "category": "mis-selling",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "escalated",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2025-1017",
+  "policy_number": "TRM-2022-4801",
+  "raised_date": "2025-05-23",
+  "category": "service_quality",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "open",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2026-1018",
+  "policy_number": "TRM-2022-4801",
+  "raised_date": "2026-05-11",
+  "category": "premium_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2026-05-28"
+ },
+ {
+  "grievance_id": "GRV-2026-1019",
+  "policy_number": "MOT-2024-9845",
+  "raised_date": "2026-02-27",
+  "category": "rejection_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2026-03-16"
+ },
+ {
+  "grievance_id": "GRV-2025-1020",
+  "policy_number": "MOT-2024-9845",
+  "raised_date": "2025-09-18",
+  "category": "rejection_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "escalated",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2026-1021",
+  "policy_number": "TRM-2024-7863",
+  "raised_date": "2026-02-05",
+  "category": "claim_delay",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2026-02-12"
+ },
+ {
+  "grievance_id": "GRV-2026-1022",
+  "policy_number": "TRM-2024-7863",
+  "raised_date": "2026-07-19",
+  "category": "claim_delay",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "open",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2025-1023",
+  "policy_number": "TRM-2024-7863",
+  "raised_date": "2025-03-06",
+  "category": "rejection_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "open",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2026-1024",
+  "policy_number": "MOT-2025-7979",
+  "raised_date": "2026-01-11",
+  "category": "service_quality",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2026-02-05"
+ },
+ {
+  "grievance_id": "GRV-2026-1025",
+  "policy_number": "MOT-2025-7979",
+  "raised_date": "2026-03-08",
+  "category": "mis-selling",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "open",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2026-1026",
+  "policy_number": "MOT-2025-7979",
+  "raised_date": "2026-01-23",
+  "category": "rejection_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "escalated",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2025-1027",
+  "policy_number": "MOT-2022-4031",
+  "raised_date": "2025-10-20",
+  "category": "service_quality",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2025-10-28"
+ },
+ {
+  "grievance_id": "GRV-2026-1028",
+  "policy_number": "MOT-2022-4031",
+  "raised_date": "2026-08-19",
+  "category": "mis-selling",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2026-09-01"
+ },
+ {
+  "grievance_id": "GRV-2025-1029",
+  "policy_number": "ASP-2023-9454",
+  "raised_date": "2025-01-24",
+  "category": "claim_delay",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2025-02-20"
+ },
+ {
+  "grievance_id": "GRV-2025-1030",
+  "policy_number": "ASP-2024-3738",
+  "raised_date": "2025-06-13",
+  "category": "rejection_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "escalated",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2025-1031",
+  "policy_number": "MOT-2022-9974",
+  "raised_date": "2025-08-10",
+  "category": "claim_delay",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "escalated",
+  "resolution": null,
+  "closed_date": null
+ },
+ {
+  "grievance_id": "GRV-2025-1032",
+  "policy_number": "MOT-2022-9974",
+  "raised_date": "2025-11-28",
+  "category": "claim_delay",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2025-12-20"
+ },
+ {
+  "grievance_id": "GRV-2026-1033",
+  "policy_number": "MOT-2022-9974",
+  "raised_date": "2026-06-11",
+  "category": "premium_dispute",
+  "summary": "Customer unhappy with handling; details in linked case.",
+  "status": "closed",
+  "resolution": "Acknowledged and resolved.",
+  "closed_date": "2026-06-24"
+ }
+]
