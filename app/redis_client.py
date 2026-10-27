@@ -32,7 +32,7 @@ async def enqueue_email_processing(email_id: int) -> None:
     (02-architecture.md §1.1: insert before enqueue)."""
     pool = await create_pool(RedisSettings.from_dsn(get_settings().REDIS_URL))
     try:
-        await pool.enqueue_job("process_email", email_id)
+        await pool.enqueue_job("process_email", email_id, _job_id=f"email:{email_id}")
     finally:
         await pool.aclose()
 

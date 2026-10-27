@@ -6,6 +6,8 @@ Never returns body_plain in full, never returns a draft before review.
 
 from __future__ import annotations
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from sqlalchemy import select
@@ -26,19 +28,25 @@ async def _get_case(session: AsyncSession, token: str) -> Case:
 
 
 @router.get("/api/cases/{token}", response_model=CasePublicResponse)
-async def get_case(token: str, session: AsyncSession = Depends(get_session)) -> CasePublicResponse:
+async def get_case(
+    token: str, session: Annotated[AsyncSession, Depends(get_session)]
+) -> CasePublicResponse:
     case = await _get_case(session, token)
 
     emails = (
-        await session.execute(
-            select(Email).where(Email.case_id == case.id).order_by(Email.received_at)
+        (
+            await session.execute(
+                select(Email).where(Email.case_id == case.id).order_by(Email.received_at)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     runs = (
-        await session.execute(
-            select(Run).where(Run.case_id == case.id).order_by(Run.started_at)
-        )
-    ).scalars().all()
+        (await session.execute(select(Run).where(Run.case_id == case.id).order_by(Run.started_at)))
+        .scalars()
+        .all()
+    )
 
     return CasePublicResponse(
         token=case.token,
@@ -70,14 +78,20 @@ async def get_case(token: str, session: AsyncSession = Depends(get_session)) -> 
 
 
 @router.get("/t/{token}", response_class=HTMLResponse)
-async def case_page(token: str, session: AsyncSession = Depends(get_session)) -> HTMLResponse:
+async def case_page(
+    token: str, session: Annotated[AsyncSession, Depends(get_session)]
+) -> HTMLResponse:
     """Plain HTML case listing (React comes in Phase 7)."""
     case = await _get_case(session, token)
     emails = (
-        await session.execute(
-            select(Email).where(Email.case_id == case.id).order_by(Email.received_at)
+        (
+            await session.execute(
+                select(Email).where(Email.case_id == case.id).order_by(Email.received_at)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
     items = "\n".join(
         f"<li><strong>{_esc(e.subject) or '(no subject)'}</strong> — "
@@ -96,15 +110,12 @@ code{{white-space:pre-wrap}}</style></head>
 <p>Status: <strong>{_esc(case.status)}</strong></p>
 <p>All data is synthetic. Do not send real personal or policy information.</p>
 <h2>Emails ({len(emails)})</h2>
-<ul>{items or '<li>No emails yet.</li>'}</ul>
+<ul>{items or "<li>No emails yet.</li>"}</ul>
 </body></html>"""
     return HTMLResponse(html)
 
 
 def _esc(value: str) -> str:
     return (
-        value.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
+        value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
     )

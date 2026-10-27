@@ -1,0 +1,21 @@
+{
+  "corpus_version": 1,
+  "purpose": "Authored retrieval probes for the synthetic clause corpus, not a labelled email evaluation or measured retrieval result.",
+  "probes": [
+    {"product_code": "ASP", "question": "What is the initial waiting period for an illness?", "expected_clause_ids": ["ASP-C07"]},
+    {"product_code": "ASP", "question": "Does accidental injury have an exception during the waiting period?", "expected_clause_ids": ["ASP-C08"]},
+    {"product_code": "ASP", "question": "What is the emergency road ambulance limit?", "expected_clause_ids": ["ASP-C06"]},
+    {"product_code": "ASP", "question": "Which documents do I need for a hospital reimbursement claim?", "expected_clause_ids": ["ASP-C13"]},
+    {"product_code": "ASP", "question": "Are surgical consumables automatically excluded?", "expected_clause_ids": ["ASP-C12"]},
+    {"product_code": "MOT", "question": "What is the difference between own damage and third party cover?", "expected_clause_ids": ["MOT-C01", "MOT-C03"]},
+    {"product_code": "MOT", "question": "What is the default deductible for car damage?", "expected_clause_ids": ["MOT-C05"]},
+    {"product_code": "MOT", "question": "Does roadside assistance include towing and how far?", "expected_clause_ids": ["MOT-C12"]},
+    {"product_code": "MOT", "question": "What documents are needed if the car is stolen?", "expected_clause_ids": ["MOT-C10"]},
+    {"product_code": "MOT", "question": "Is engine damage after restarting a waterlogged car covered?", "expected_clause_ids": ["MOT-C08"]},
+    {"product_code": "TRM", "question": "Does term insurance have a maturity payment?", "expected_clause_ids": ["TRM-C14"]},
+    {"product_code": "TRM", "question": "Which documents are needed to notify a death claim?", "expected_clause_ids": ["TRM-C11"]},
+    {"product_code": "TRM", "question": "What grace period applies to monthly premiums?", "expected_clause_ids": ["TRM-C08"]},
+    {"product_code": "TRM", "question": "Is revival of a lapsed policy automatic after payment?", "expected_clause_ids": ["TRM-C09"]},
+    {"product_code": "TRM", "question": "What is the initial waiting period for non accidental death?", "expected_clause_ids": ["TRM-C04"]}
+  ]
+}

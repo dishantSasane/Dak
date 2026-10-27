@@ -1,0 +1,47 @@
+{
+  "corpus_version": 1,
+  "synthetic": true,
+  "wording_version": "1.0",
+  "sources_sha256": "74aa6351b636b8d89f0b7b74caa0a1bbe9793b12170d45ae40a68a9b0c39737c",
+  "documents": [
+    {
+      "product_code": "ASP",
+      "document_id": "VGI-ASP-SYN-2026-01",
+      "title": "Vantara Health Cover",
+      "source_path": "source/ASP.md",
+      "pdf_path": "pdf/ASP.pdf",
+      "reference_ids": [
+        "REF-HEALTH-01"
+      ],
+      "clause_count": 18,
+      "source_sha256": "146ce6675da21067685decf58eef477904675ea781c982bf49ddca807075a2a0",
+      "pdf_sha256": "9b77e2ff5ac000a024ccd2f00d002066002124bcc51c4aa1c8fef909f2f1ac5d"
+    },
+    {
+      "product_code": "MOT",
+      "document_id": "VGI-MOT-SYN-2026-01",
+      "title": "Vantara Private Car Cover",
+      "source_path": "source/MOT.md",
+      "pdf_path": "pdf/MOT.pdf",
+      "reference_ids": [
+        "REF-MOTOR-01"
+      ],
+      "clause_count": 18,
+      "source_sha256": "bf5bed727ad61ead9ef513a63a25db6a233f934c417b4028d947c5593db56104",
+      "pdf_sha256": "219656287d89efd5be4ba77851c1cf7800bb1c3b9f2a2ee415166ca8a35f1a05"
+    },
+    {
+      "product_code": "TRM",
+      "document_id": "VGI-TRM-SYN-2026-01",
+      "title": "Vantara Term Life Cover",
+      "source_path": "source/TRM.md",
+      "pdf_path": "pdf/TRM.pdf",
+      "reference_ids": [
+        "REF-LIFE-01"
+      ],
+      "clause_count": 18,
+      "source_sha256": "25d22c45d49272a3e9c686c9774551b4f0ac4cc147f2007c2d5004d17f8460a2",
+      "pdf_sha256": "8655616b374202975f7da9fc07443130e962d405b7de9a7f6535325bbd019b5e"
+    }
+  ]
+}

@@ -18,9 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import Case, Email
 from app.tokens import generate_token, parse_token_from_subject
 
-POLICY_NUMBER_RE = re.compile(
-    r"\b(ASP|MOT|TRM)[\s_-]?(\d{4})[\s_-]?(\d{4})\b", re.IGNORECASE
-)
+POLICY_NUMBER_RE = re.compile(r"\b(ASP|MOT|TRM)[\s_-]?(\d{4})[\s_-]?(\d{4})\b", re.IGNORECASE)
 
 
 def extract_policy_number(text: str) -> str | None:
@@ -38,15 +36,14 @@ async def _case_by_token(session: AsyncSession, token: str) -> Case | None:
 
 async def _case_by_thread_ref(session: AsyncSession, ref: str) -> Case | None:
     result = await session.execute(
-        select(Case)
-        .join(Email, Email.case_id == Case.id)
-        .where(Email.message_id == ref)
-        .limit(1)
+        select(Case).join(Email, Email.case_id == Case.id).where(Email.message_id == ref).limit(1)
     )
     return result.scalar_one_or_none()
 
 
-async def _open_case_for_pair(session: AsyncSession, email_addr: str, policy_number: str) -> Case | None:
+async def _open_case_for_pair(
+    session: AsyncSession, email_addr: str, policy_number: str
+) -> Case | None:
     result = await session.execute(
         select(Case)
         .where(
@@ -59,17 +56,24 @@ async def _open_case_for_pair(session: AsyncSession, email_addr: str, policy_num
     return result.scalar_one_or_none()
 
 
-async def _create_case(session: AsyncSession, contact_email: str, policy_number: str | None) -> Case:
+async def _create_case(
+    session: AsyncSession, contact_email: str, policy_number: str | None
+) -> Case:
     """New case with a fresh token; retry on unique-constraint collision."""
-    while True:
-        case = Case(token=generate_token(), contact_email=contact_email, policy_number=policy_number)
-        session.add(case)
+    for _attempt in range(5):
+        case = Case(
+            token=generate_token(), contact_email=contact_email, policy_number=policy_number
+        )
         try:
-            await session.flush()
-        except IntegrityError:
-            await session.rollback()
+            async with session.begin_nested():
+                session.add(case)
+                await session.flush()
+        except IntegrityError as exc:
+            if getattr(exc.orig, "sqlstate", None) != "23505":
+                raise
             continue
         return case
+    raise RuntimeError("Could not allocate a unique case token after five attempts")
 
 
 async def resolve_case(
@@ -96,7 +100,7 @@ async def resolve_case(
 
     # b. In-Reply-To / References → thread lookup
     for ref in filter(None, [in_reply_to, *(references.split() if references else [])]):
-        case = await _case_by_thread_ref(session, ref.strip("<>"))
+        case = await _case_by_thread_ref(session, ref.strip())
         if case is not None:
             return case, False
 

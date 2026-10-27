@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Any
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     BigInteger,
-    TextClause,
     Boolean,
     Date,
     DateTime,
@@ -22,6 +22,7 @@ from sqlalchemy import (
     SmallInteger,
     String,
     Text,
+    TextClause,
     UniqueConstraint,
     func,
     text,
@@ -29,13 +30,14 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.sql.compiler import SQLCompiler
 
 
 class Base(DeclarativeBase):
     pass
 
 
-def _pg_default(expr: str) -> object:
+def _pg_default(expr: str) -> TextClause:
     """Server default written Postgres-style; SQLite-compatible at DDL time.
 
     ``'{}'::jsonb`` and ``false`` are not valid SQLite literals, so we keep a
@@ -62,20 +64,20 @@ class FallbackDefault(TextClause):  # type: ignore[misc]
 
 
 @compiles(FallbackDefault)
-def _compile_fallback_default(element: FallbackDefault, compiler: object, **kw: object) -> str:
+def _compile_fallback_default(element: FallbackDefault, compiler: SQLCompiler, **kw: Any) -> str:
     if compiler.dialect.name == "postgresql":  # type: ignore[attr-defined]
         return str(compiler.process(element.pg, **kw))
     return element.lit
 
 
 @compiles(JSONB, "sqlite")
-def _compile_jsonb_sqlite(type_: JSONB, compiler: object, **kw: object) -> str:
+def _compile_jsonb_sqlite(type_: JSONB, compiler: SQLCompiler, **kw: Any) -> str:
     """SQLite renders PostgreSQL JSONB as JSON (used by the local test DB)."""
     return "JSON"
 
 
 @compiles(Vector, "sqlite")
-def _compile_vector_sqlite(type_: Vector, compiler: object, **kw: object) -> str:
+def _compile_vector_sqlite(type_: Vector, compiler: SQLCompiler, **kw: Any) -> str:
     """SQLite has no pgvector; store embeddings as BLOB in the local test DB."""
     return "BLOB"
 
@@ -95,9 +97,7 @@ class Case(Base):
     policy_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
     contact_email: Mapped[str] = mapped_column(String(320), nullable=False)
     # open | awaiting_customer | resolved | escalated
-    status: Mapped[str] = mapped_column(
-        String(24), nullable=False, server_default=text("'open'")
-    )
+    status: Mapped[str] = mapped_column(String(24), nullable=False, server_default=text("'open'"))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -170,19 +170,13 @@ class Run(Base):
     total_completion_tokens: Mapped[int] = mapped_column(
         Integer, nullable=False, server_default=text("0")
     )
-    model_calls: Mapped[int] = mapped_column(
-        SmallInteger, nullable=False, server_default=text("0")
-    )
-    cache_hits: Mapped[int] = mapped_column(
-        SmallInteger, nullable=False, server_default=text("0")
-    )
+    model_calls: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
+    cache_hits: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
     duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
-    finished_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     __table_args__ = (
         Index("ix_runs_email_id", "email_id"),
@@ -303,8 +297,12 @@ class Policy(Base):
     premium: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     payment_frequency: Mapped[str] = mapped_column(String(16), nullable=False)
     last_payment_date: Mapped[date | None] = mapped_column(Date, nullable=True)
-    co_pay_percent: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
-    riders: Mapped[list] = mapped_column(JSONB, nullable=False, server_default=_pg_default("'[]'::jsonb"))
+    co_pay_percent: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, server_default=text("0")
+    )
+    riders: Mapped[list] = mapped_column(
+        JSONB, nullable=False, server_default=_pg_default("'[]'::jsonb")
+    )
     nominee_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     nominee_relation: Mapped[str | None] = mapped_column(String(32), nullable=True)
     city: Mapped[str | None] = mapped_column(String(64), nullable=True)
@@ -451,7 +449,9 @@ class EvalEmail(Base):
     difficulty: Mapped[str] = mapped_column(String(8), nullable=False)
     probes: Mapped[str | None] = mapped_column(Text, nullable=True)
     # synthetic | real
-    source: Mapped[str] = mapped_column(String(16), nullable=False, server_default=text("'synthetic'"))
+    source: Mapped[str] = mapped_column(
+        String(16), nullable=False, server_default=text("'synthetic'")
+    )
 
 
 class EvalRun(Base):

@@ -16,3 +16,6 @@ data/test.db
 *.swo
 .DS_Store
 Thumbs.db
+
+# Local embedding model weights and provider cache
+.cache/
