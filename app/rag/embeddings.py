@@ -47,7 +47,16 @@ def validate_embeddings(vectors: list[list[float]], expected: int) -> None:
 def _encode(texts: list[str]) -> list[list[float]]:
     with _MODEL_LOCK:
         vectors = (
-            _model().encode(texts, normalize_embeddings=True, show_progress_bar=False).tolist()
+            # Keep peak RAM low for small instances such as Render's 512 MiB
+            # free web service. Corpus bootstrap can embed many clauses at once.
+            _model()
+            .encode(
+                texts,
+                batch_size=1,
+                normalize_embeddings=True,
+                show_progress_bar=False,
+            )
+            .tolist()
         )
     validate_embeddings(vectors, len(texts))
     return vectors
