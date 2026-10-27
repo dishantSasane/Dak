@@ -6,8 +6,9 @@ missing field).
 """
 
 from functools import lru_cache
+from typing import Literal
 
-from pydantic import ValidationError
+from pydantic import Field, ValidationError, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,10 +24,15 @@ class Settings(BaseSettings):
     )
 
     # --- Required (no defaults) -------------------------------------------
-    DATABASE_URL: str
-    REDIS_URL: str
-    GEMINI_API_KEY: str
-    CLOUDMAILIN_SECRET: str
+    DATABASE_URL: str = Field(min_length=1)
+    REDIS_URL: str = Field(min_length=1)
+    GEMINI_API_KEY: str = ""
+    CLOUDMAILIN_SECRET: str = ""
+
+    # --- Hosted demo access ------------------------------------------------
+    APP_ENV: Literal["development", "production"] = "development"
+    APP_ROLE: Literal["development", "web", "worker"] = "development"
+    DASHBOARD_PASSWORD: str = ""
 
     # --- Models ------------------------------------------------------------
     GEMINI_MODEL_TRIAGE: str = "gemini-3.1-flash-lite"
@@ -56,14 +62,41 @@ class Settings(BaseSettings):
     RETRIEVAL_TOP_K: int = 5
     RETRIEVAL_SCORE_FLOOR: float = 0.30
 
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def use_asyncpg_driver(cls, value: str) -> str:
+        """Render exposes standard PostgreSQL URLs; SQLAlchemy needs asyncpg."""
+        if value.startswith("postgres://"):
+            return "postgresql+asyncpg://" + value.removeprefix("postgres://")
+        if value.startswith("postgresql://"):
+            return "postgresql+asyncpg://" + value.removeprefix("postgresql://")
+        return value
+
+    @model_validator(mode="after")
+    def production_access_is_configured(self) -> "Settings":
+        if self.APP_ENV == "production":
+            if self.APP_ROLE == "development":
+                raise ValueError("Production requires APP_ROLE=web or APP_ROLE=worker")
+            if self.ALLOW_UNSIGNED_WEBHOOK:
+                raise ValueError("ALLOW_UNSIGNED_WEBHOOK must be false in production")
+            if self.ALLOW_UNSIGNED_WEBHOOK:
+                raise ValueError("ALLOW_UNSIGNED_WEBHOOK must be false in production")
+        if self.APP_ENV == "production" and self.APP_ROLE == "web":
+            if len(self.DASHBOARD_PASSWORD) < 16 or not self.CLOUDMAILIN_SECRET:
+                raise ValueError(
+                    "Production web role requires DASHBOARD_PASSWORD (at least 16 characters) "
+                    "and CLOUDMAILIN_SECRET"
+                )
+        if self.APP_ENV == "production" and self.APP_ROLE == "worker" and not self.GEMINI_API_KEY:
+            raise ValueError("Production worker role requires GEMINI_API_KEY")
+        return self
+
 
 def _load_settings() -> Settings:
     try:
         return Settings()  # type: ignore[call-arg]
     except ValidationError as exc:
-        missing = [
-            str(e["loc"][0]) for e in exc.errors() if e.get("type") == "missing"
-        ]
+        missing = [str(e["loc"][0]) for e in exc.errors() if e.get("type") == "missing"]
         if missing:
             raise ConfigError(
                 "Missing required environment variable(s): " + ", ".join(missing)
@@ -76,9 +109,4 @@ def get_settings() -> Settings:
     return _load_settings()
 
 
-# Module-level accessor. Importing this module with an incomplete environment
-# raises ConfigError naming the missing variable(s).
-try:  # pragma: no cover - exercised via tests with patched env
-    settings = get_settings()
-except ConfigError:
-    settings = None  # type: ignore[assignment]
+settings = get_settings()

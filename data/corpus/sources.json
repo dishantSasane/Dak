@@ -1,0 +1,47 @@
+{
+  "corpus_version": 1,
+  "wording_version": "1.0",
+  "created_on": "2026-10-19",
+  "issuer": "Vantara General Insurance",
+  "synthetic": true,
+  "purpose": "Original fictional policy rules for Dak retrieval, citation and review tests; not real insurance terms.",
+  "references": [
+    {
+      "id": "REF-HEALTH-01",
+      "publisher": "HDFC ERGO General Insurance Company Limited",
+      "title": "Arogya Sanjeevani Policy - retail policy wording",
+      "url": "https://customer-portal-assets.hdfcergo.com/documents/arogya-sanjeevani-policy-retail-pw-570443039657.pdf",
+      "discovery_url": "https://www.hdfcergo.com/download/policy-wordings/health",
+      "observed_document_identifier": "HDFHLIP20175V011920",
+      "observed_pages": 29,
+      "accessed_on": "2026-10-19",
+      "influence": "Topic organisation: definitions, medical benefits, exclusions, waiting periods and claim evidence. Vantara prose and numeric fixture choices are original, not represented as this insurer's terms."
+    },
+    {
+      "id": "REF-MOTOR-01",
+      "publisher": "ICICI Lombard General Insurance Company Limited",
+      "title": "Private Car Package Policy Wording",
+      "url": "https://www.icicilombard.com/docs/default-source/default-document-library/private-car-package-policy-wording.pdf",
+      "observed_document_identifier": "IRDAN115RP0017V02200102",
+      "observed_pages": 50,
+      "accessed_on": "2026-10-19",
+      "influence": "Separation of own damage and third-party liability, with deductions and optional extensions. Synthetic allowances, percentages and procedural rules are independently chosen for testing.",
+      "note": "The live PDF identified V02; older search metadata showed V01. The identifier records the opened document, not the search snippet."
+    },
+    {
+      "id": "REF-LIFE-01",
+      "publisher": "HDFC Life Insurance Company Limited",
+      "title": "HDFC Life Saral Jeevan Bima policy document",
+      "url": "https://www.hdfclife.com/content/dam/hdfclifeinsurancecompany/customer-services/policy-documents-pdf/protection-live/HDFC-Life-Saral-Jeevan-Bima-101N140V02.pdf",
+      "observed_document_identifier": "101N140V02",
+      "observed_pages": 20,
+      "accessed_on": "2026-10-19",
+      "influence": "Protection-only structure, initial accident/non-accident distinction, premium/grace concepts, nomination and claim evidence. Vantara does not reproduce the reference's benefit formula or regulatory claims."
+    }
+  ],
+  "documents": [
+    {"product_code": "ASP", "document_id": "VGI-ASP-SYN-2026-01", "title": "Vantara Health Cover", "source_path": "source/ASP.md", "pdf_path": "pdf/ASP.pdf", "reference_ids": ["REF-HEALTH-01"]},
+    {"product_code": "MOT", "document_id": "VGI-MOT-SYN-2026-01", "title": "Vantara Private Car Cover", "source_path": "source/MOT.md", "pdf_path": "pdf/MOT.pdf", "reference_ids": ["REF-MOTOR-01"]},
+    {"product_code": "TRM", "document_id": "VGI-TRM-SYN-2026-01", "title": "Vantara Term Life Cover", "source_path": "source/TRM.md", "pdf_path": "pdf/TRM.pdf", "reference_ids": ["REF-LIFE-01"]}
+  ]
+}

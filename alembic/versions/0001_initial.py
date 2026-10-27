@@ -3,24 +3,27 @@
 T0.5: one migration creating everything, with CREATE EXTENSION IF NOT EXISTS
 vector first and the HNSW indexes last.
 """
+
 from __future__ import annotations
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import pgvector.sqlalchemy
 import sqlalchemy as sa
-from alembic import op
 from sqlalchemy.dialects import postgresql
 
+from alembic import op
+
 revision: str = "0001_initial"
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def _ts(name: str, nullable: bool = False) -> sa.Column:
-    return sa.Column(name, sa.DateTime(timezone=True), nullable=nullable,
-                     server_default=sa.text("now()"))
+    return sa.Column(
+        name, sa.DateTime(timezone=True), nullable=nullable, server_default=sa.text("now()")
+    )
 
 
 def upgrade() -> None:
@@ -35,7 +38,8 @@ def upgrade() -> None:
         sa.Column("policy_number", sa.String(32), nullable=True),
         sa.Column("contact_email", sa.String(320), nullable=False),
         sa.Column("status", sa.String(24), nullable=False, server_default=sa.text("'open'")),
-        _ts("created_at"), _ts("updated_at"),
+        _ts("created_at"),
+        _ts("updated_at"),
         sa.UniqueConstraint("token", name="uq_cases_token"),
     )
     op.create_index("ix_cases_token", "cases", ["token"])
@@ -55,8 +59,9 @@ def upgrade() -> None:
         sa.Column("body_plain", sa.Text(), nullable=False, server_default=sa.text("''")),
         sa.Column("body_html", sa.Text(), nullable=False, server_default=sa.text("''")),
         sa.Column("in_reply_to", sa.String(998), nullable=True),
-        sa.Column("raw_payload", postgresql.JSONB(), nullable=False,
-                  server_default=sa.text("'{}'::jsonb")),
+        sa.Column(
+            "raw_payload", postgresql.JSONB(), nullable=False, server_default=sa.text("'{}'::jsonb")
+        ),
         _ts("received_at"),
         sa.UniqueConstraint("message_id", name="uq_emails_message_id"),
     )
@@ -76,11 +81,13 @@ def upgrade() -> None:
         sa.Column("route", sa.String(32), nullable=True),
         sa.Column("escalation_reason", sa.String(48), nullable=True),
         sa.Column("reroute_count", sa.SmallInteger(), nullable=False, server_default=sa.text("0")),
-        sa.Column("validator_retry_count", sa.SmallInteger(), nullable=False,
-                  server_default=sa.text("0")),
+        sa.Column(
+            "validator_retry_count", sa.SmallInteger(), nullable=False, server_default=sa.text("0")
+        ),
         sa.Column("total_prompt_tokens", sa.Integer(), nullable=False, server_default=sa.text("0")),
-        sa.Column("total_completion_tokens", sa.Integer(), nullable=False,
-                  server_default=sa.text("0")),
+        sa.Column(
+            "total_completion_tokens", sa.Integer(), nullable=False, server_default=sa.text("0")
+        ),
         sa.Column("model_calls", sa.SmallInteger(), nullable=False, server_default=sa.text("0")),
         sa.Column("cache_hits", sa.SmallInteger(), nullable=False, server_default=sa.text("0")),
         sa.Column("duration_ms", sa.Integer(), nullable=True),
@@ -99,8 +106,9 @@ def upgrade() -> None:
         sa.Column("seq", sa.Integer(), nullable=False),
         sa.Column("node", sa.String(32), nullable=False),
         sa.Column("event_type", sa.String(24), nullable=False),
-        sa.Column("payload", postgresql.JSONB(), nullable=False,
-                  server_default=sa.text("'{}'::jsonb")),
+        sa.Column(
+            "payload", postgresql.JSONB(), nullable=False, server_default=sa.text("'{}'::jsonb")
+        ),
         sa.Column("duration_ms", sa.Integer(), nullable=True),
         _ts("created_at"),
         sa.UniqueConstraint("run_id", "seq", name="uq_run_events_run_id_seq"),
@@ -115,11 +123,13 @@ def upgrade() -> None:
         sa.Column("attempt", sa.SmallInteger(), nullable=False, server_default=sa.text("1")),
         sa.Column("sentences", postgresql.JSONB(), nullable=False),
         sa.Column("rendered_text", sa.Text(), nullable=False),
-        sa.Column("citations", postgresql.JSONB(), nullable=False,
-                  server_default=sa.text("'[]'::jsonb")),
+        sa.Column(
+            "citations", postgresql.JSONB(), nullable=False, server_default=sa.text("'[]'::jsonb")
+        ),
         sa.Column("validation_passed", sa.Boolean(), nullable=False),
-        sa.Column("violations", postgresql.JSONB(), nullable=False,
-                  server_default=sa.text("'[]'::jsonb")),
+        sa.Column(
+            "violations", postgresql.JSONB(), nullable=False, server_default=sa.text("'[]'::jsonb")
+        ),
         _ts("created_at"),
         sa.UniqueConstraint("run_id", "attempt", name="uq_drafts_run_id_attempt"),
     )
@@ -143,8 +153,12 @@ def upgrade() -> None:
         sa.Column("policy_status", sa.String(16), nullable=False),
         sa.Column("coverage_assessment", postgresql.JSONB(), nullable=False),
         sa.Column("eligibility", postgresql.JSONB(), nullable=False),
-        sa.Column("missing_documents", postgresql.JSONB(), nullable=False,
-                  server_default=sa.text("'[]'::jsonb")),
+        sa.Column(
+            "missing_documents",
+            postgresql.JSONB(),
+            nullable=False,
+            server_default=sa.text("'[]'::jsonb"),
+        ),
         sa.Column("recommendation", sa.String(32), nullable=False),
         _ts("created_at"),
     )
@@ -169,7 +183,9 @@ def upgrade() -> None:
         sa.Column("payment_frequency", sa.String(16), nullable=False),
         sa.Column("last_payment_date", sa.Date(), nullable=True),
         sa.Column("co_pay_percent", sa.SmallInteger(), nullable=False, server_default=sa.text("0")),
-        sa.Column("riders", postgresql.JSONB(), nullable=False, server_default=sa.text("'[]'::jsonb")),
+        sa.Column(
+            "riders", postgresql.JSONB(), nullable=False, server_default=sa.text("'[]'::jsonb")
+        ),
         sa.Column("nominee_name", sa.String(128), nullable=True),
         sa.Column("nominee_relation", sa.String(32), nullable=True),
         sa.Column("city", sa.String(64), nullable=True),
@@ -182,8 +198,9 @@ def upgrade() -> None:
     op.create_table(
         "claims",
         sa.Column("claim_id", sa.String(32), primary_key=True),
-        sa.Column("policy_number", sa.String(32), sa.ForeignKey("policies.policy_number"),
-                  nullable=False),
+        sa.Column(
+            "policy_number", sa.String(32), sa.ForeignKey("policies.policy_number"), nullable=False
+        ),
         sa.Column("intimation_date", sa.Date(), nullable=False),
         sa.Column("claim_type", sa.String(48), nullable=False),
         sa.Column("description", sa.Text(), nullable=False),
@@ -191,7 +208,9 @@ def upgrade() -> None:
         sa.Column("amount_settled", sa.Numeric(14, 2), nullable=True),
         sa.Column("status", sa.String(16), nullable=False),
         sa.Column("rejection_reason", sa.Text(), nullable=True),
-        sa.Column("disputed_internally", sa.Boolean(), nullable=False, server_default=sa.text("false")),
+        sa.Column(
+            "disputed_internally", sa.Boolean(), nullable=False, server_default=sa.text("false")
+        ),
         sa.Column("settled_date", sa.Date(), nullable=True),
     )
 
@@ -199,8 +218,9 @@ def upgrade() -> None:
     op.create_table(
         "grievances",
         sa.Column("grievance_id", sa.String(32), primary_key=True),
-        sa.Column("policy_number", sa.String(32), sa.ForeignKey("policies.policy_number"),
-                  nullable=False),
+        sa.Column(
+            "policy_number", sa.String(32), sa.ForeignKey("policies.policy_number"), nullable=False
+        ),
         sa.Column("raised_date", sa.Date(), nullable=False),
         sa.Column("category", sa.String(32), nullable=False),
         sa.Column("summary", sa.Text(), nullable=False),
@@ -271,11 +291,13 @@ def upgrade() -> None:
         sa.Column("corpus_version", sa.Integer(), nullable=False),
         sa.Column("embedding", pgvector.sqlalchemy.Vector(384), nullable=False),
         _ts("created_at"),
-        sa.UniqueConstraint("product_code", "clause_id", "corpus_version",
-                            name="uq_policy_chunks_clause"),
+        sa.UniqueConstraint(
+            "product_code", "clause_id", "corpus_version", name="uq_policy_chunks_clause"
+        ),
     )
-    op.create_index("ix_policy_chunks_product_version", "policy_chunks",
-                    ["product_code", "corpus_version"])
+    op.create_index(
+        "ix_policy_chunks_product_version", "policy_chunks", ["product_code", "corpus_version"]
+    )
 
     op.create_table(
         "semantic_cache",
@@ -290,26 +312,43 @@ def upgrade() -> None:
         _ts("created_at"),
         sa.Column("last_hit_at", sa.DateTime(timezone=True), nullable=True),
     )
-    op.create_index("ix_semantic_cache_product_version", "semantic_cache",
-                    ["product_code", "corpus_version"])
+    op.create_index(
+        "ix_semantic_cache_product_version", "semantic_cache", ["product_code", "corpus_version"]
+    )
 
     # --- HNSW indexes last ----------------------------------------------------
     op.create_index(
-        "ix_policy_chunks_embedding_hnsw", "policy_chunks", ["embedding"],
-        postgresql_using="hnsw", postgresql_ops={"embedding": "vector_cosine_ops"},
+        "ix_policy_chunks_embedding_hnsw",
+        "policy_chunks",
+        ["embedding"],
+        postgresql_using="hnsw",
+        postgresql_ops={"embedding": "vector_cosine_ops"},
     )
     op.create_index(
-        "ix_semantic_cache_question_emb_hnsw", "semantic_cache", ["question_emb"],
-        postgresql_using="hnsw", postgresql_ops={"question_emb": "vector_cosine_ops"},
+        "ix_semantic_cache_question_emb_hnsw",
+        "semantic_cache",
+        ["question_emb"],
+        postgresql_using="hnsw",
+        postgresql_ops={"question_emb": "vector_cosine_ops"},
     )
 
 
 def downgrade() -> None:
     for table in (
-        "semantic_cache", "policy_chunks",
-        "eval_results", "eval_runs", "eval_emails",
-        "grievances", "claims", "policies",
-        "case_files", "reviews", "drafts",
-        "run_events", "runs", "emails", "cases",
+        "semantic_cache",
+        "policy_chunks",
+        "eval_results",
+        "eval_runs",
+        "eval_emails",
+        "grievances",
+        "claims",
+        "policies",
+        "case_files",
+        "reviews",
+        "drafts",
+        "run_events",
+        "runs",
+        "emails",
+        "cases",
     ):
         op.drop_table(table)

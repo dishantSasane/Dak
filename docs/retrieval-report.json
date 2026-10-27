@@ -1,0 +1,587 @@
+{
+  "measured_at": "2026-10-19T15:36:29.370747+00:00",
+  "kind": "authored retrieval smoke probes, not held-out email evaluation",
+  "model": "sentence-transformers/all-MiniLM-L6-v2",
+  "model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "sentence_transformers_version": "6.1.0",
+  "torch_version": "2.14.1+cpu",
+  "corpus_version": 1,
+  "score_floor": 0.3,
+  "cache_smoke": {
+    "fixture_validation": "manual source check, not the future deterministic validator",
+    "generic_fixture_stored": true,
+    "paraphrase_hit": true,
+    "customer_specific_write_blocked": true,
+    "semantic_threshold": 0.95
+  },
+  "probe_count": 15,
+  "top_3_hits": 15,
+  "nonsense_returns_empty": true,
+  "results": [
+    {
+      "product_code": "ASP",
+      "question": "What is the initial waiting period for an illness?",
+      "expected_clause_ids": [
+        "ASP-C07"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "ASP-C07",
+          "clause_title": "Initial waiting period",
+          "content": "The default initial waiting period for illness is 30 days from the policy start date. Some synthetic schedules instead record 60 days or 90 days. The recorded waiting_period_end date is inclusive: an illness event on that date remains inside the waiting period, and the following date is outside it. An accident exception is described separately in ASP-C08; the assistant must not silently apply that exception to a personal claim.",
+          "score": 0.7350131589158636
+        },
+        {
+          "clause_id": "ASP-C09",
+          "clause_title": "Pre-existing conditions",
+          "content": "A declared condition that existed before the policy started uses the pre_existing_waiting_period_end date in the synthetic schedule. Fixture schedules may use 240 days, 365 days or 730 days; these are scenario choices, not regulatory requirements. The end date is inclusive. A general question can describe the mechanism, but the assistant needs the policy record and relevant medical history to discuss an individual's waiting-period position.",
+          "score": 0.5389417088662646
+        },
+        {
+          "clause_id": "ASP-C02",
+          "clause_title": "Hospital admission",
+          "content": "An eligible hospital admission involves medically necessary treatment prescribed by a registered medical practitioner and an overnight stay of at least 24 hours. Observation solely for routine screening is outside this benefit. Admission notes, the discharge summary and itemised bills are evidence for assessment. Meeting the stay requirement alone does not establish that the particular claim satisfies every other condition.",
+          "score": 0.4627710327183002
+        },
+        {
+          "clause_id": "ASP-C04",
+          "clause_title": "Expenses around admission",
+          "content": "Related diagnostic tests and prescribed medicines incurred in the 20 days before admission and the 45 days after discharge may be assessed with the associated hospital claim. The treating practitioner must connect them to the admitted condition. These windows do not create a separate allowance for unrelated conditions and do not override the policy period, waiting periods or remaining insured amount.",
+          "score": 0.4504756390481457
+        },
+        {
+          "clause_id": "ASP-C08",
+          "clause_title": "Accident exception and human review",
+          "content": "The initial illness waiting period does not apply to treatment caused directly by a documented accidental injury occurring within the policy period. This exception does not remove exclusions, exhaustion of the insured amount or cancellation. If the deterministic calculator reports an initial waiting-period block but retrieved evidence suggests this exception, preserve both findings and refer the conflict to a human reviewer rather than deciding the claim.",
+          "score": 0.4172889092816252
+        }
+      ]
+    },
+    {
+      "product_code": "ASP",
+      "question": "Does accidental injury have an exception during the waiting period?",
+      "expected_clause_ids": [
+        "ASP-C08"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "ASP-C08",
+          "clause_title": "Accident exception and human review",
+          "content": "The initial illness waiting period does not apply to treatment caused directly by a documented accidental injury occurring within the policy period. This exception does not remove exclusions, exhaustion of the insured amount or cancellation. If the deterministic calculator reports an initial waiting-period block but retrieved evidence suggests this exception, preserve both findings and refer the conflict to a human reviewer rather than deciding the claim.",
+          "score": 0.7231690452594147
+        },
+        {
+          "clause_id": "ASP-C07",
+          "clause_title": "Initial waiting period",
+          "content": "The default initial waiting period for illness is 30 days from the policy start date. Some synthetic schedules instead record 60 days or 90 days. The recorded waiting_period_end date is inclusive: an illness event on that date remains inside the waiting period, and the following date is outside it. An accident exception is described separately in ASP-C08; the assistant must not silently apply that exception to a personal claim.",
+          "score": 0.49233987973094795
+        },
+        {
+          "clause_id": "ASP-C11",
+          "clause_title": "Medical exclusions",
+          "content": "Routine health checks, treatment solely for cosmetic preference, fertility services and treatment without a documented medical indication are outside this fixture's base benefits. Reconstructive treatment following an assessed accidental injury requires individual review and is not automatically excluded as cosmetic. A diagnosis label alone cannot establish the applicable exclusion. The reviewer must consider the medical evidence and the complete circumstances.",
+          "score": 0.3980945111456812
+        },
+        {
+          "clause_id": "ASP-C15",
+          "clause_title": "Intimation and delayed notification",
+          "content": "The customer should notify the claims team as soon as reasonably possible after admission and include the policy number, admission date and treating hospital. A late notification accompanied by an explanation is sent for review rather than automatically rejected. An acknowledgement confirms receipt only. It must not say that cover has been accepted, that reimbursement is certain or that a decision has already been made.",
+          "score": 0.3640355033832188
+        },
+        {
+          "clause_id": "ASP-C09",
+          "clause_title": "Pre-existing conditions",
+          "content": "A declared condition that existed before the policy started uses the pre_existing_waiting_period_end date in the synthetic schedule. Fixture schedules may use 240 days, 365 days or 730 days; these are scenario choices, not regulatory requirements. The end date is inclusive. A general question can describe the mechanism, but the assistant needs the policy record and relevant medical history to discuss an individual's waiting-period position.",
+          "score": 0.3443525135517145
+        }
+      ]
+    },
+    {
+      "product_code": "ASP",
+      "question": "What is the emergency road ambulance limit?",
+      "expected_clause_ids": [
+        "ASP-C06"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "ASP-C06",
+          "clause_title": "Emergency transport",
+          "content": "Emergency road ambulance expenses associated with an assessed hospital admission have a default limit of Rs 3,500 for each admission. This allowance concerns the road transfer to a hospital and does not extend to an air ambulance, routine transport home or accommodation for accompanying relatives. A dated transport receipt and the medical reason for emergency transfer support the request.",
+          "score": 0.6860435009002686
+        },
+        {
+          "clause_id": "ASP-C05",
+          "clause_title": "Room and intensive care limits",
+          "content": "The default room allowance is INR 2,800 per day. The default intensive care allowance is INR 5,600 per day. A recorded endorsement may replace these defaults. A reviewer identifies the eligible days and any applicable limit using the hospital bill. The assistant must not calculate a personal hospital entitlement from these daily figures without the bill and the applicable policy record.",
+          "score": 0.4947028160095215
+        },
+        {
+          "clause_id": "ASP-C07",
+          "clause_title": "Initial waiting period",
+          "content": "The default initial waiting period for illness is 30 days from the policy start date. Some synthetic schedules instead record 60 days or 90 days. The recorded waiting_period_end date is inclusive: an illness event on that date remains inside the waiting period, and the following date is outside it. An accident exception is described separately in ASP-C08; the assistant must not silently apply that exception to a personal claim.",
+          "score": 0.3506814241409302
+        }
+      ]
+    },
+    {
+      "product_code": "ASP",
+      "question": "Which documents do I need for a hospital reimbursement claim?",
+      "expected_clause_ids": [
+        "ASP-C13"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "ASP-C13",
+          "clause_title": "Claim evidence and attachments",
+          "content": "The standard evidence list is a completed claim form, discharge summary, itemised hospital bill, payment receipts and relevant investigation reports. An accidental injury may additionally require an incident report when available. Dak checks attachment names and presence only. It does not certify document contents or authenticity. Missing documents should be listed individually; receiving an attachment is not evidence that the claim is admissible.",
+          "score": 0.5290926975552629
+        },
+        {
+          "clause_id": "ASP-C04",
+          "clause_title": "Expenses around admission",
+          "content": "Related diagnostic tests and prescribed medicines incurred in the 20 days before admission and the 45 days after discharge may be assessed with the associated hospital claim. The treating practitioner must connect them to the admitted condition. These windows do not create a separate allowance for unrelated conditions and do not override the policy period, waiting periods or remaining insured amount.",
+          "score": 0.4993799328804016
+        },
+        {
+          "clause_id": "ASP-C12",
+          "clause_title": "Consumables and disputed rejections",
+          "content": "Consumables recorded by the hospital as necessary components of an otherwise assessed surgical procedure are not excluded merely because they are described as consumables. Personal toiletries and visitor supplies remain outside the benefit. A complaint about a rejection based only on a blanket consumables exclusion must be checked against the bill, this clause and any internally disputed claim record; it requires human review when the evidence conflicts.",
+          "score": 0.4620188795316895
+        },
+        {
+          "clause_id": "ASP-C18",
+          "clause_title": "Supported answers and limits",
+          "content": "This wording supports questions about the fictional health benefits above. It does not describe travel cover, pet cover, investment returns, a hospital's current network status or the status of an individual payment. A question requiring absent information must be referred rather than answered from general insurance knowledge. All claim outcomes and any commitments outside these written fixture rules remain decisions for the human reviewer.",
+          "score": 0.44523295760154724
+        },
+        {
+          "clause_id": "ASP-C15",
+          "clause_title": "Intimation and delayed notification",
+          "content": "The customer should notify the claims team as soon as reasonably possible after admission and include the policy number, admission date and treating hospital. A late notification accompanied by an explanation is sent for review rather than automatically rejected. An acknowledgement confirms receipt only. It must not say that cover has been accepted, that reimbursement is certain or that a decision has already been made.",
+          "score": 0.4051660057803397
+        }
+      ]
+    },
+    {
+      "product_code": "ASP",
+      "question": "Are surgical consumables automatically excluded?",
+      "expected_clause_ids": [
+        "ASP-C12"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "ASP-C12",
+          "clause_title": "Consumables and disputed rejections",
+          "content": "Consumables recorded by the hospital as necessary components of an otherwise assessed surgical procedure are not excluded merely because they are described as consumables. Personal toiletries and visitor supplies remain outside the benefit. A complaint about a rejection based only on a blanket consumables exclusion must be checked against the bill, this clause and any internally disputed claim record; it requires human review when the evidence conflicts.",
+          "score": 0.702938770897535
+        },
+        {
+          "clause_id": "ASP-C11",
+          "clause_title": "Medical exclusions",
+          "content": "Routine health checks, treatment solely for cosmetic preference, fertility services and treatment without a documented medical indication are outside this fixture's base benefits. Reconstructive treatment following an assessed accidental injury requires individual review and is not automatically excluded as cosmetic. A diagnosis label alone cannot establish the applicable exclusion. The reviewer must consider the medical evidence and the complete circumstances.",
+          "score": 0.5322537104932252
+        },
+        {
+          "clause_id": "ASP-C04",
+          "clause_title": "Expenses around admission",
+          "content": "Related diagnostic tests and prescribed medicines incurred in the 20 days before admission and the 45 days after discharge may be assessed with the associated hospital claim. The treating practitioner must connect them to the admitted condition. These windows do not create a separate allowance for unrelated conditions and do not override the policy period, waiting periods or remaining insured amount.",
+          "score": 0.3862406679248418
+        },
+        {
+          "clause_id": "ASP-C18",
+          "clause_title": "Supported answers and limits",
+          "content": "This wording supports questions about the fictional health benefits above. It does not describe travel cover, pet cover, investment returns, a hospital's current network status or the status of an individual payment. A question requiring absent information must be referred rather than answered from general insurance knowledge. All claim outcomes and any commitments outside these written fixture rules remain decisions for the human reviewer.",
+          "score": 0.34294418436621577
+        }
+      ]
+    },
+    {
+      "product_code": "MOT",
+      "question": "What is the difference between own damage and third party cover?",
+      "expected_clause_ids": [
+        "MOT-C01",
+        "MOT-C03"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "MOT-C01",
+          "clause_title": "Vehicle and sections selected",
+          "content": "This fixture concerns a private car identified in the individual synthetic schedule. Own-damage and third-party liability are different sections; the schedule must show which are present. Having one section does not establish the existence of the other. A general reply can explain the distinction, but it must not declare a customer's vehicle insured for a particular event without checking the recorded cover and event details.",
+          "score": 0.5389284056105736
+        },
+        {
+          "clause_id": "MOT-C02",
+          "clause_title": "Accidental damage to the insured car",
+          "content": "External collision damage, fire, theft and direct damage from a flood or storm are events considered under the own-damage section when that section is selected. Assessment still requires the event to fall within the recorded period and usage conditions. Damage to another person's vehicle is not an own-damage claim for the insured car; third-party matters are considered under MOT-C03.",
+          "score": 0.5262241677179437
+        },
+        {
+          "clause_id": "MOT-C03",
+          "clause_title": "Third-party liability",
+          "content": "The third-party section addresses a demand concerning injury to another person or damage to another person's property arising from use of the scheduled car. A demand letter, police record or legal notice must be forwarded to the reviewer without admitting liability or negotiating a settlement. No universal financial limit is supplied by this fixture; the applicable schedule and human legal assessment are required.",
+          "score": 0.4832570994870993
+        },
+        {
+          "clause_id": "MOT-C07",
+          "clause_title": "Wear, breakdown and consequential damage",
+          "content": "Routine wear, maintenance and a mechanical or electrical fault without a covered external event are outside the base own-damage benefit. Additional damage caused by continuing to use a visibly unsafe vehicle needs separate examination. A breakdown assistance request is different from a repair reimbursement claim. Naming a mechanical component in an email does not itself establish either coverage or an exclusion.",
+          "score": 0.4639012079268352
+        },
+        {
+          "clause_id": "MOT-C05",
+          "clause_title": "Deductibles",
+          "content": "The default own-damage deductible in this synthetic wording is INR 1,750 for each assessed event. A voluntary deductible applies only when separately recorded in the schedule. A deductible is a contribution to an assessed loss and is not an extra charge for submitting an email. The assistant may explain the generic default but cannot quote a customer's final settlement without the complete assessment.",
+          "score": 0.46135090406683554
+        }
+      ]
+    },
+    {
+      "product_code": "MOT",
+      "question": "What is the default deductible for car damage?",
+      "expected_clause_ids": [
+        "MOT-C05"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "MOT-C05",
+          "clause_title": "Deductibles",
+          "content": "The default own-damage deductible in this synthetic wording is INR 1,750 for each assessed event. A voluntary deductible applies only when separately recorded in the schedule. A deductible is a contribution to an assessed loss and is not an extra charge for submitting an email. The assistant may explain the generic default but cannot quote a customer's final settlement without the complete assessment.",
+          "score": 0.6783418442795462
+        },
+        {
+          "clause_id": "MOT-C02",
+          "clause_title": "Accidental damage to the insured car",
+          "content": "External collision damage, fire, theft and direct damage from a flood or storm are events considered under the own-damage section when that section is selected. Assessment still requires the event to fall within the recorded period and usage conditions. Damage to another person's vehicle is not an own-damage claim for the insured car; third-party matters are considered under MOT-C03.",
+          "score": 0.5769576854420421
+        },
+        {
+          "clause_id": "MOT-C04",
+          "clause_title": "Vehicle value and loss assessment",
+          "content": "The recorded insured vehicle value is a schedule-specific ceiling for an own-damage assessment, not a guaranteed settlement. A repair estimate, the condition of the car and the event circumstances are examined by a reviewer. The assistant must not derive the vehicle's value from a registration year, premium, public listing or another synthetic customer's record. The total-loss conclusion is outside automated authority.",
+          "score": 0.4387574566891841
+        },
+        {
+          "clause_id": "MOT-C07",
+          "clause_title": "Wear, breakdown and consequential damage",
+          "content": "Routine wear, maintenance and a mechanical or electrical fault without a covered external event are outside the base own-damage benefit. Additional damage caused by continuing to use a visibly unsafe vehicle needs separate examination. A breakdown assistance request is different from a repair reimbursement claim. Naming a mechanical component in an email does not itself establish either coverage or an exclusion.",
+          "score": 0.4377611353682118
+        },
+        {
+          "clause_id": "MOT-C14",
+          "clause_title": "Claims and loss reduction",
+          "content": "A customer should report the event promptly with the known facts and protect the vehicle from further avoidable damage where safe. The reviewer assesses any delay and explanation on the evidence. No clause here authorises the assistant to approve a repair, reject a claim, accept fault or instruct a garage to begin work. Claim acknowledgement is separate from authorisation and from settlement.",
+          "score": 0.38606814229082276
+        }
+      ]
+    },
+    {
+      "product_code": "MOT",
+      "question": "Does roadside assistance include towing and how far?",
+      "expected_clause_ids": [
+        "MOT-C12"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "MOT-C12",
+          "clause_title": "Optional roadside assistance",
+          "content": "Roadside assistance exists only when road_assistance appears in the recorded rider list. The synthetic towing allowance under that rider is a distance of 35 kilometres to an appropriate repair facility. Fuel, accommodation and subsequent vehicle repair charges are not included in this allowance. The assistant must not claim a dispatch has been booked: this application records and reviews messages and has no assistance dispatch integration.",
+          "score": 0.7474935205284656
+        },
+        {
+          "clause_id": "MOT-C14",
+          "clause_title": "Claims and loss reduction",
+          "content": "A customer should report the event promptly with the known facts and protect the vehicle from further avoidable damage where safe. The reviewer assesses any delay and explanation on the evidence. No clause here authorises the assistant to approve a repair, reject a claim, accept fault or instruct a garage to begin work. Claim acknowledgement is separate from authorisation and from settlement.",
+          "score": 0.30121320486068726
+        }
+      ]
+    },
+    {
+      "product_code": "MOT",
+      "question": "What documents are needed if the car is stolen?",
+      "expected_clause_ids": [
+        "MOT-C10"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "MOT-C10",
+          "clause_title": "Theft evidence",
+          "content": "A theft intimation should include the policy number, registration number, location, date last seen and any police complaint reference. Standard supporting items are a claim form, registration certificate, available keys and police acknowledgement. A final police report may be requested later by the reviewer. Lack of that later report at initial notification is not an automatic rejection and must not prevent acknowledging receipt.",
+          "score": 0.589546101973835
+        },
+        {
+          "clause_id": "MOT-C11",
+          "clause_title": "Accident evidence and inspection",
+          "content": "Standard accident evidence comprises a claim form, registration certificate, driver licence, repair estimate and available event photographs. A police record is relevant when injury, a third-party demand or another reportable circumstance is described. The customer should preserve evidence and discuss non-emergency repairs with the reviewer. Necessary steps to protect people must not be delayed to obtain a demo claim acknowledgement.",
+          "score": 0.4554719166598298
+        },
+        {
+          "clause_id": "MOT-C03",
+          "clause_title": "Third-party liability",
+          "content": "The third-party section addresses a demand concerning injury to another person or damage to another person's property arising from use of the scheduled car. A demand letter, police record or legal notice must be forwarded to the reviewer without admitting liability or negotiating a settlement. No universal financial limit is supplied by this fixture; the applicable schedule and human legal assessment are required.",
+          "score": 0.40183971529721385
+        },
+        {
+          "clause_id": "MOT-C02",
+          "clause_title": "Accidental damage to the insured car",
+          "content": "External collision damage, fire, theft and direct damage from a flood or storm are events considered under the own-damage section when that section is selected. Assessment still requires the event to fall within the recorded period and usage conditions. Damage to another person's vehicle is not an own-damage claim for the insured car; third-party matters are considered under MOT-C03.",
+          "score": 0.3868560425553347
+        },
+        {
+          "clause_id": "MOT-C04",
+          "clause_title": "Vehicle value and loss assessment",
+          "content": "The recorded insured vehicle value is a schedule-specific ceiling for an own-damage assessment, not a guaranteed settlement. A repair estimate, the condition of the car and the event circumstances are examined by a reviewer. The assistant must not derive the vehicle's value from a registration year, premium, public listing or another synthetic customer's record. The total-loss conclusion is outside automated authority.",
+          "score": 0.36436193095559233
+        }
+      ]
+    },
+    {
+      "product_code": "MOT",
+      "question": "Is engine damage after restarting a waterlogged car covered?",
+      "expected_clause_ids": [
+        "MOT-C08"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "MOT-C08",
+          "clause_title": "Engine and flood distinction",
+          "content": "Direct flood damage to body panels can be considered under the own-damage section. Engine damage caused by attempting to restart a waterlogged car is outside the base engine benefit in this fixture. An explicitly recorded engine-protection endorsement may alter that position and must be inspected by a human. Conflicting event descriptions or endorsements must be retained as uncertainty rather than resolved by the drafting model.",
+          "score": 0.6382266067401544
+        },
+        {
+          "clause_id": "MOT-C02",
+          "clause_title": "Accidental damage to the insured car",
+          "content": "External collision damage, fire, theft and direct damage from a flood or storm are events considered under the own-damage section when that section is selected. Assessment still requires the event to fall within the recorded period and usage conditions. Damage to another person's vehicle is not an own-damage claim for the insured car; third-party matters are considered under MOT-C03.",
+          "score": 0.44775931070083197
+        },
+        {
+          "clause_id": "MOT-C07",
+          "clause_title": "Wear, breakdown and consequential damage",
+          "content": "Routine wear, maintenance and a mechanical or electrical fault without a covered external event are outside the base own-damage benefit. Additional damage caused by continuing to use a visibly unsafe vehicle needs separate examination. A breakdown assistance request is different from a repair reimbursement claim. Naming a mechanical component in an email does not itself establish either coverage or an exclusion.",
+          "score": 0.33275586366653687
+        },
+        {
+          "clause_id": "MOT-C14",
+          "clause_title": "Claims and loss reduction",
+          "content": "A customer should report the event promptly with the known facts and protect the vehicle from further avoidable damage where safe. The reviewer assesses any delay and explanation on the evidence. No clause here authorises the assistant to approve a repair, reject a claim, accept fault or instruct a garage to begin work. Claim acknowledgement is separate from authorisation and from settlement.",
+          "score": 0.32070549253854175
+        },
+        {
+          "clause_id": "MOT-C13",
+          "clause_title": "Policy period and waiting periods",
+          "content": "Own-damage event eligibility uses the recorded start date, end date and any effective cancellation date. This motor fixture has no illness or pre-existing-condition waiting period. Health waiting-period fields accidentally present on a legacy motor seed row are not motor cover conditions. If a generic calculator applies such a health block, preserve the discrepancy and refer it for correction before a motor assessment is relied upon.",
+          "score": 0.3028830885887168
+        }
+      ]
+    },
+    {
+      "product_code": "TRM",
+      "question": "Does term insurance have a maturity payment?",
+      "expected_clause_ids": [
+        "TRM-C14"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "TRM-C14",
+          "clause_title": "End of term and maturity",
+          "content": "There is no maturity payment or savings balance under this fixture's base protection-only cover. A scheduled end date marks the end of the recorded term unless a distinct accepted change exists. This clause does not determine a death claim relating to an earlier event. The assistant must distinguish an enquiry about surviving the term from a notification of death before the term ended.",
+          "score": 0.5984981238394419
+        },
+        {
+          "clause_id": "TRM-C08",
+          "clause_title": "Grace period and lapse review",
+          "content": "This fixture uses a default grace period of 18 days for a monthly premium and 32 days for a quarterly or annual premium. These are deliberately fictional durations. The due date and unpaid instalments must be confirmed before applying the rule. A currently lapsed label does not alone settle whether an earlier event fell inside a valid period or grace period; the reviewer must examine the historical record.",
+          "score": 0.4115986227989197
+        },
+        {
+          "clause_id": "TRM-C06",
+          "clause_title": "Non-accidental death during waiting",
+          "content": "For this fixture, the reviewer examines a request concerning non-accidental death inside the waiting period for a possible return of recorded base premiums, rather than assuming the full protection amount applies. This is an internal assessment path, not a guarantee of any refund. Taxes, separate riders, evidence gaps and schedule differences must be examined individually. The assistant does not compute or promise a refund.",
+          "score": 0.4000404238676779
+        },
+        {
+          "clause_id": "TRM-C03",
+          "clause_title": "Protection amount",
+          "content": "The amount of protection is held in the individual policy record. No fixed customer benefit or universal multiplier is supplied by this synthetic wording. The assistant must not calculate an amount from premium frequency or use another customer's record as a reference. Any potential deductions, prior payments or conflicting schedule entries require human assessment before a figure can be communicated as a claim outcome.",
+          "score": 0.3941277265548706
+        },
+        {
+          "clause_id": "TRM-C07",
+          "clause_title": "Premium frequency and due records",
+          "content": "The schedule records monthly, quarterly or annual premium frequency and the latest recorded payment date. A payment date alone is insufficient to establish all instalments due or the exact grace-period end. The assistant must not construct a new due-date ledger from the frequency label. A dispute over whether a payment was received or allocated requires the payment team and supporting evidence.",
+          "score": 0.38906402057027756
+        }
+      ]
+    },
+    {
+      "product_code": "TRM",
+      "question": "Which documents are needed to notify a death claim?",
+      "expected_clause_ids": [
+        "TRM-C11"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "TRM-C02",
+          "clause_title": "Death intimation",
+          "content": "A beneficiary can notify the team that the named life assured has died and provide the policy number, date of death and contact details for correspondence. This begins an evidence-gathering process. Receipt of a notification, creation of a case token and attachment upload do not confirm that a benefit is payable. A customer acknowledgement must not announce an approval, rejection or likelihood of either outcome.",
+          "score": 0.6663558681991191
+        },
+        {
+          "clause_id": "TRM-C11",
+          "clause_title": "Standard death-claim evidence",
+          "content": "Standard supporting items are a completed death-claim form, death certificate, claimant identity evidence, policy reference and payment account evidence supplied through an appropriate review channel. Medical records may be needed to understand the cause and timing of death. The demo uses synthetic documents only. Dak inventories filenames and presence; it does not verify identity documents, read bank records or establish their authenticity.",
+          "score": 0.6120426156444652
+        },
+        {
+          "clause_id": "TRM-C12",
+          "clause_title": "Additional accident evidence",
+          "content": "When accidental death is described, the reviewer may need a police report, available post-mortem report and an incident account in addition to the standard evidence. Unavailable documents should be identified individually and referred with an explanation. The assistant must not infer cause of death from the existence of a filename, a brief email statement or the emotional tone of the sender.",
+          "score": 0.5749998599291015
+        },
+        {
+          "clause_id": "TRM-C05",
+          "clause_title": "Accidental death during waiting",
+          "content": "A death reported as directly resulting from an accident within the recorded policy period may require different treatment from non-accidental death during the initial risk waiting period. That exception requires evidence of cause and human assessment. If a general calculator blocks the event but a retrieved clause suggests this exception, retain the disagreement and escalate. The drafting model must not waive a block or tell the beneficiary the claim is payable.",
+          "score": 0.44164315909567686
+        },
+        {
+          "clause_id": "TRM-C18",
+          "clause_title": "Boundaries of supported answers",
+          "content": "This corpus does not describe annuities, pension withdrawals, unit-linked investments, tax advice or benefits under an employer's group scheme. It supplies no current claim status, bank transfer date or guaranteed assessment timeline. If those facts are missing, the appropriate answer is a referral rather than a plausible estimate. Bereavement correspondence should remain concise, respectful and neutral about outcomes.",
+          "score": 0.3757935240391783
+        }
+      ]
+    },
+    {
+      "product_code": "TRM",
+      "question": "What grace period applies to monthly premiums?",
+      "expected_clause_ids": [
+        "TRM-C08"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "TRM-C08",
+          "clause_title": "Grace period and lapse review",
+          "content": "This fixture uses a default grace period of 18 days for a monthly premium and 32 days for a quarterly or annual premium. These are deliberately fictional durations. The due date and unpaid instalments must be confirmed before applying the rule. A currently lapsed label does not alone settle whether an earlier event fell inside a valid period or grace period; the reviewer must examine the historical record.",
+          "score": 0.7346780896186829
+        },
+        {
+          "clause_id": "TRM-C07",
+          "clause_title": "Premium frequency and due records",
+          "content": "The schedule records monthly, quarterly or annual premium frequency and the latest recorded payment date. A payment date alone is insufficient to establish all instalments due or the exact grace-period end. The assistant must not construct a new due-date ledger from the frequency label. A dispute over whether a payment was received or allocated requires the payment team and supporting evidence.",
+          "score": 0.5651454588684176
+        },
+        {
+          "clause_id": "TRM-C03",
+          "clause_title": "Protection amount",
+          "content": "The amount of protection is held in the individual policy record. No fixed customer benefit or universal multiplier is supplied by this synthetic wording. The assistant must not calculate an amount from premium frequency or use another customer's record as a reference. Any potential deductions, prior payments or conflicting schedule entries require human assessment before a figure can be communicated as a claim outcome.",
+          "score": 0.45627525448799133
+        },
+        {
+          "clause_id": "TRM-C14",
+          "clause_title": "End of term and maturity",
+          "content": "There is no maturity payment or savings balance under this fixture's base protection-only cover. A scheduled end date marks the end of the recorded term unless a distinct accepted change exists. This clause does not determine a death claim relating to an earlier event. The assistant must distinguish an enquiry about surviving the term from a notification of death before the term ended.",
+          "score": 0.38402683687290073
+        },
+        {
+          "clause_id": "TRM-C06",
+          "clause_title": "Non-accidental death during waiting",
+          "content": "For this fixture, the reviewer examines a request concerning non-accidental death inside the waiting period for a possible return of recorded base premiums, rather than assuming the full protection amount applies. This is an internal assessment path, not a guarantee of any refund. Taxes, separate riders, evidence gaps and schedule differences must be examined individually. The assistant does not compute or promise a refund.",
+          "score": 0.37832394967532523
+        }
+      ]
+    },
+    {
+      "product_code": "TRM",
+      "question": "Is revival of a lapsed policy automatic after payment?",
+      "expected_clause_ids": [
+        "TRM-C09"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "TRM-C09",
+          "clause_title": "Revival is not automatic",
+          "content": "A request to revive lapsed cover is considered separately from a claim intimation. Payment of overdue premiums or sending a revival request does not automatically establish that cover resumed. The reviewer needs a recorded revival acceptance and effective date. If those records are missing, the assistant must identify the gap and refer the case rather than invent a revival date or recalculate cover from a bank transfer.",
+          "score": 0.5786614073120719
+        },
+        {
+          "clause_id": "TRM-C08",
+          "clause_title": "Grace period and lapse review",
+          "content": "This fixture uses a default grace period of 18 days for a monthly premium and 32 days for a quarterly or annual premium. These are deliberately fictional durations. The due date and unpaid instalments must be confirmed before applying the rule. A currently lapsed label does not alone settle whether an earlier event fell inside a valid period or grace period; the reviewer must examine the historical record.",
+          "score": 0.5125214457511902
+        },
+        {
+          "clause_id": "TRM-C06",
+          "clause_title": "Non-accidental death during waiting",
+          "content": "For this fixture, the reviewer examines a request concerning non-accidental death inside the waiting period for a possible return of recorded base premiums, rather than assuming the full protection amount applies. This is an internal assessment path, not a guarantee of any refund. Taxes, separate riders, evidence gaps and schedule differences must be examined individually. The assistant does not compute or promise a refund.",
+          "score": 0.4285827321658897
+        },
+        {
+          "clause_id": "TRM-C07",
+          "clause_title": "Premium frequency and due records",
+          "content": "The schedule records monthly, quarterly or annual premium frequency and the latest recorded payment date. A payment date alone is insufficient to establish all instalments due or the exact grace-period end. The assistant must not construct a new due-date ledger from the frequency label. A dispute over whether a payment was received or allocated requires the payment team and supporting evidence.",
+          "score": 0.42516425698016613
+        },
+        {
+          "clause_id": "TRM-C03",
+          "clause_title": "Protection amount",
+          "content": "The amount of protection is held in the individual policy record. No fixed customer benefit or universal multiplier is supplied by this synthetic wording. The assistant must not calculate an amount from premium frequency or use another customer's record as a reference. Any potential deductions, prior payments or conflicting schedule entries require human assessment before a figure can be communicated as a claim outcome.",
+          "score": 0.41009074449539185
+        }
+      ]
+    },
+    {
+      "product_code": "TRM",
+      "question": "What is the initial waiting period for non accidental death?",
+      "expected_clause_ids": [
+        "TRM-C04"
+      ],
+      "top_3_hit": true,
+      "retrieved": [
+        {
+          "clause_id": "TRM-C04",
+          "clause_title": "Initial risk waiting period",
+          "content": "The default non-accidental initial risk waiting period in this synthetic fixture is 45 days. A synthetic schedule may specify a different waiting_period_end date, and that recorded date is inclusive. A death on the recorded end date remains inside the waiting period; the next date is outside it. The assistant must retrieve the record rather than infer the boundary from the product name or the default alone.",
+          "score": 0.6492827743719366
+        },
+        {
+          "clause_id": "TRM-C06",
+          "clause_title": "Non-accidental death during waiting",
+          "content": "For this fixture, the reviewer examines a request concerning non-accidental death inside the waiting period for a possible return of recorded base premiums, rather than assuming the full protection amount applies. This is an internal assessment path, not a guarantee of any refund. Taxes, separate riders, evidence gaps and schedule differences must be examined individually. The assistant does not compute or promise a refund.",
+          "score": 0.5848256844489951
+        },
+        {
+          "clause_id": "TRM-C05",
+          "clause_title": "Accidental death during waiting",
+          "content": "A death reported as directly resulting from an accident within the recorded policy period may require different treatment from non-accidental death during the initial risk waiting period. That exception requires evidence of cause and human assessment. If a general calculator blocks the event but a retrieved clause suggests this exception, retain the disagreement and escalate. The drafting model must not waive a block or tell the beneficiary the claim is payable.",
+          "score": 0.5648665610194405
+        },
+        {
+          "clause_id": "TRM-C08",
+          "clause_title": "Grace period and lapse review",
+          "content": "This fixture uses a default grace period of 18 days for a monthly premium and 32 days for a quarterly or annual premium. These are deliberately fictional durations. The due date and unpaid instalments must be confirmed before applying the rule. A currently lapsed label does not alone settle whether an earlier event fell inside a valid period or grace period; the reviewer must examine the historical record.",
+          "score": 0.40747234776780994
+        },
+        {
+          "clause_id": "TRM-C13",
+          "clause_title": "Special exclusion review",
+          "content": "An event involving intentional self-harm during the first 12 months from commencement or a recorded revival is a specialist review case in this synthetic wording. The assistant must not determine intent, infer a cause from euphemisms or announce an exclusion as a decided outcome. Medical evidence, chronology and the applicable schedule must be examined by a human with the full record.",
+          "score": 0.37486837060044054
+        }
+      ]
+    }
+  ]
+}

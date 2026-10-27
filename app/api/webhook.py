@@ -8,9 +8,12 @@ store the raw payload, mark unparseable, return 200.
 from __future__ import annotations
 
 import logging
+from json import JSONDecodeError
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
+from redis.exceptions import RedisError
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,7 +21,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.db.models import Case, Email
 from app.db.session import get_session
-from app.inbound.cloudmailin import SIGNATURE_HEADER, ParsedEmail, parse_payload, verify_signature
+from app.inbound.cloudmailin import (
+    SIGNATURE_HEADER,
+    ParsedEmail,
+    parse_payload,
+    verify_authorization,
+    verify_signature,
+)
 from app.redis_client import enqueue_email_processing
 from app.services.cases import resolve_case
 
@@ -50,20 +59,29 @@ async def _insert_email(
     )
     row = (await session.execute(stmt)).first()
     if row is None:
-        existing_id = await session.scalar(select(Email.id).where(Email.message_id == parsed.message_id))
+        existing_id = await session.scalar(
+            select(Email.id).where(Email.message_id == parsed.message_id)
+        )
+        if existing_id is None:
+            raise RuntimeError("Conflicting email disappeared")
         return int(existing_id), False
     return int(row[0]), True
 
 
 @router.post("/webhook/email")
-async def webhook_email(request: Request, session: AsyncSession = Depends(get_session)) -> JSONResponse:
+async def webhook_email(
+    request: Request, session: Annotated[AsyncSession, Depends(get_session)]
+) -> JSONResponse:
     settings = get_settings()
     body = await request.body()
 
     # 1. Verify provider signature (ALLOW_UNSIGNED_WEBHOOK is local-testing only).
     if not settings.ALLOW_UNSIGNED_WEBHOOK:
         signature = request.headers.get(SIGNATURE_HEADER)
-        if not verify_signature(body, signature, settings.CLOUDMAILIN_SECRET):
+        if not (
+            verify_authorization(request.headers.get("Authorization"), settings.CLOUDMAILIN_SECRET)
+            or verify_signature(body, signature, settings.CLOUDMAILIN_SECRET)
+        ):
             logger.warning("webhook signature verification failed")
             return JSONResponse(status_code=401, content={"status": "unauthorized"})
 
@@ -74,10 +92,8 @@ async def webhook_email(request: Request, session: AsyncSession = Depends(get_se
         if isinstance(payload, dict):
             raw_json = payload
         parsed = parse_payload(raw_json)
-        unparseable = False
-    except Exception:  # noqa: BLE001 - boundary: any provider payload shape must yield 200
+    except (JSONDecodeError, UnicodeDecodeError, ValueError):
         parsed = None
-        unparseable = True
 
     if parsed is None:
         # Store the raw payload, mark unparseable, return 200 so the provider
@@ -87,7 +103,9 @@ async def webhook_email(request: Request, session: AsyncSession = Depends(get_se
         from app.tokens import generate_token
 
         digest = hashlib.sha256(body).hexdigest()[:16]
-        case = await session.scalar(select(Case).where(Case.contact_email == "unknown@unparseable.local"))
+        case = await session.scalar(
+            select(Case).where(Case.contact_email == "unknown@unparseable.local")
+        )
         if case is None:
             case = Case(token=generate_token(), contact_email="unknown@unparseable.local")
             session.add(case)
@@ -103,13 +121,22 @@ async def webhook_email(request: Request, session: AsyncSession = Depends(get_se
                 subject="",
                 body_plain="",
                 body_html="",
-                raw_payload={"unparseable": True, "raw": body.decode("utf-8", "replace")[:65536]},
+                raw_payload={"unparseable": True, "raw": body.decode("utf-8", "replace")},
             )
             .on_conflict_do_nothing(index_elements=["message_id"])
         )
         await session.execute(stmt)
         await session.commit()
         return JSONResponse(status_code=200, content={"status": "accepted", "token": case.token})
+
+    # A retry after a queue outage must enqueue the durable email again.
+    existing = await session.scalar(select(Email).where(Email.message_id == parsed.message_id))
+    if existing is not None:
+        try:
+            await enqueue_email_processing(existing.id)
+        except (RedisError, OSError):
+            return JSONResponse(status_code=503, content={"status": "queue_unavailable"})
+        return JSONResponse(status_code=200, content={"status": "duplicate"})
 
     # 3. Resolve or create the case (four steps, spec order — T1.3).
     case, _created = await resolve_case(
@@ -123,16 +150,20 @@ async def webhook_email(request: Request, session: AsyncSession = Depends(get_se
 
     # 4. INSERT email (idempotent on message_id) BEFORE enqueue.
     email_id, inserted = await _insert_email(session, case.id, parsed, raw_json)
-    await session.commit()
-
     if not inserted:
-        return JSONResponse(status_code=200, content={"status": "duplicate"})
+        await session.rollback()
+    else:
+        await session.commit()
 
     # 5. Enqueue {email_id} — only after the insert committed.
     try:
         await enqueue_email_processing(email_id)
-    except Exception as exc:  # noqa: BLE001 - queue outage must not bounce the provider
+    except (RedisError, OSError) as exc:
         logger.error("enqueue failed for email %s: %s", email_id, exc)
+        return JSONResponse(status_code=503, content={"status": "queue_unavailable"})
+
+    if not inserted:
+        return JSONResponse(status_code=200, content={"status": "duplicate"})
 
     # 6. Return 200.
     return JSONResponse(status_code=200, content={"status": "accepted", "token": case.token})

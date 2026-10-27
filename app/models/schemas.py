@@ -31,6 +31,8 @@ ESCALATION_REASONS = (
     "model_output_invalid",
     "unidentifiable",
     "out_of_scope",
+    "repeat_complainant",
+    "potentially_valid_grievance",
 )
 
 
@@ -140,6 +142,7 @@ class PolicyRecord(BaseModel):
     policy_number: str
     holder_name: str
     holder_email: str
+    cancelled_date: date | None = None
     product_code: str
     product_name: str
     status: str

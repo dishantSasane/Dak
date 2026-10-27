@@ -13,11 +13,12 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import json
 from dataclasses import dataclass, field
 
 import html2text
 
-# CloudMailin sends the raw request body signed with the account secret.
+# Legacy HMAC support for existing integrations; CloudMailin uses Authorization.
 SIGNATURE_HEADER = "X-CM-Signature"
 
 
@@ -54,14 +55,7 @@ def html_to_plain(html: str) -> str:
 
 
 def _content_hash(payload: dict) -> str:
-    material = "|".join(
-        [
-            str(payload.get("sender", "")),
-            str(payload.get("subject", "")),
-            str(payload.get("plain", "")),
-            str(payload.get("html", "")),
-        ]
-    )
+    material = json.dumps(payload, sort_keys=True, ensure_ascii=False)
     digest = hashlib.sha256(material.encode("utf-8")).hexdigest()
     return f"generated-{digest}@local"
 
@@ -73,31 +67,45 @@ def parse_payload(payload: dict) -> ParsedEmail:
     the webhook catches that, stores the raw payload and returns 200 per
     05-api-and-ui.md §1.1.
     """
-    sender = str(payload.get("sender", "")).strip()
-    if not sender:
+    envelope = payload.get("envelope", {})
+    headers_raw = payload.get("headers", {})
+    if not isinstance(envelope, dict) or not isinstance(headers_raw, dict):
+        raise ValueError("envelope and headers must be objects")
+    headers = {
+        str(key).lower().replace("_", "-"): (
+            " ".join(str(item) for item in value) if isinstance(value, list) else str(value or "")
+        )
+        for key, value in headers_raw.items()
+    }
+    sender = payload.get("sender") or envelope.get("from")
+    if not isinstance(sender, str) or not sender.strip():
         raise ValueError("payload has no sender")
-
-    plain = str(payload.get("plain", "") or "")
-    html = str(payload.get("html", "") or "")
+    sender = sender.strip()
+    plain = payload.get("plain") or ""
+    html = payload.get("html") or ""
+    if not isinstance(plain, str) or not isinstance(html, str):
+        raise ValueError("plain and html must be strings")
     if not plain.strip() and html.strip():
         plain = html_to_plain(html)
-
-    headers_raw = payload.get("headers", {}) or {}
-    headers = {str(k): str(v) for k, v in headers_raw.items()}
-
-    message_id = str(headers.get("message-id", "") or payload.get("message_id", "") or "").strip()
+    message_id = str(headers.get("message-id") or payload.get("message_id") or "").strip()
     if not message_id:
         message_id = _content_hash(payload)
-
-    in_reply_to = str(headers.get("in-reply-to", "") or "").strip() or None
+    in_reply_to = headers.get("in-reply-to", "").strip() or None
 
     return ParsedEmail(
         sender=sender,
-        recipient=str(payload.get("recipient", "") or ""),
-        subject=str(payload.get("subject", "") or ""),
+        recipient=str(payload.get("recipient") or envelope.get("to") or ""),
+        subject=str(payload.get("subject") or headers.get("subject") or ""),
         plain=plain,
         html=html,
         message_id=message_id,
         in_reply_to=in_reply_to,
         headers=headers,
     )
+
+
+def verify_authorization(authorization: str | None, secret: str) -> bool:
+    """Check the Bearer header configured in CloudMailin Authorization Settings."""
+    if not authorization or not secret:
+        return False
+    return hmac.compare_digest(authorization.encode(), f"Bearer {secret}".encode())

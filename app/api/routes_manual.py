@@ -10,6 +10,7 @@ from __future__ import annotations
 import time
 import uuid
 from collections import defaultdict, deque
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
@@ -44,13 +45,13 @@ def _rate_limited(ip: str) -> bool:
 
 @router.post("/api/manual-email", status_code=202)
 async def manual_email(
-    request: Request, body: ManualEmailRequest, session: AsyncSession = Depends(get_session)
+    request: Request,
+    body: ManualEmailRequest,
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> JSONResponse:
     ip = request.client.host if request.client else "unknown"
     if _rate_limited(ip):
-        return JSONResponse(
-            status_code=429, content={"status": "rate_limited", "limit": "10/hour"}
-        )
+        return JSONResponse(status_code=429, content={"status": "rate_limited", "limit": "10/hour"})
 
     parsed = ParsedEmail(
         sender=body.sender,

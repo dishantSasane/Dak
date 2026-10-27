@@ -1,0 +1,30 @@
+# Dak contract decisions
+
+Recorded 2026-10-19 under `md_files/07-codex-completion-plan.md`. Current owner instructions take precedence over 00–06. Decisions labelled pending implementation are not statements that the behavior is working.
+
+| Topic | Interpretation / decision | Current evidence or next change |
+|---|---|---|
+| Corpus provenance | Owner requested original synthetic documents using online insurer wordings as references. This supersedes direct ingestion of real IRDAI/insurer policy PDFs. Preserve Vantara and ASP/MOT/TRM. | `data/corpus/sources.json`, three Markdown sources, generated PDFs and checksum manifest. Only synthetic clauses enter retrieval. No SQL migration. |
+| Product branding | Use Dak for the application; preserve historical Inbox Triage references and Vantara seed identities. | New corpus/build docs use Dak; API and frontend now use Dak. |
+| Malformed inbound payload | Use an `emails` row with placeholder mandatory addresses and `raw_payload.unparseable=true` plus full raw text. Never enqueue it. | Existing webhook representation tested for authenticated malformed inputs. No `emails.status` column invented. |
+| Case versus run status | Case remains open/awaiting_customer/resolved/escalated; run carries running/pending_review/approved/rejected/escalated/failed. | Case API returns the persisted case status; future UI must show two separately labelled badges. Graph finalization persists the separate run and case states. |
+| Public versus reviewer content | Public case API retains 200-character previews and no unreviewed drafts or internal notes. Full email/draft content belongs to the synthetic reviewer/demo workspace. | Restricted case route is tested. Reviewer endpoints are currently unauthenticated by v1 design, so this is a representation boundary, not access control. They must never serve real personal data; live run API needs an explicit allowed-content contract. |
+| Complaint escalation reasons | Add repeat_complainant and potentially_valid_grievance to typed reasons and labels when complaint agent is implemented; existing DB text columns need no enum migration. | Typed reasons and complaint escalation paths are implemented and tested. |
+| Personal figures in drafts | Generic corpus clauses do not establish a customer's balance or insured amount. Keep unsupported personal figures out of factual customer sentences; do not weaken the numeric validator. | Synthetic ASP-C14/TRM-C03 and schedule-precedence clauses state this boundary. Enforced by agent, validator and conservative cache-admission tests. |
+| Async tools versus pure arithmetic | Keep pure synchronous eligibility for unit tests; expose it through an async, traced, error-wrapped agent tool. | Pure function exists and passes boundary tests; async traced eligibility wrapper is implemented. |
+| Product-specific eligibility | Health waiting periods do not apply to motor. Term-life grace, revival and premium refunds need evidence beyond the existing generic calculator. Schedule overrides and accident exceptions remain reviewable conflicts. | Corpus documents these distinctions. Product-specific calculator behavior and supported-event-date guards are tested; no premium ledger is invented. |
+| Draft/review-only v1 | Approval persists a human decision; it sends no email. Grounding metrics describe validated drafts and state their denominators. Empty denominators display N/A. | Review route has no send path. Empty denominators now display N/A and review metrics are tested. Citation checks do not establish semantic entailment. |
+| Eval list/detail contracts | Add minimal run-list and per-email failure-detail responses for the specified eval selector/table. | Existing API has only summary by eval-run ID. Typed list/detail additions and frontend states are tested. |
+| Save/enqueue failure window | Commit email before enqueue; queue outage returns 503, retry requeues the same durable email, stable ARQ IDs and row locks prevent duplicate runs. | Retry and real queue tests pass. Startup and periodic reconciliation now recover committed parseable emails without terminal runs; a lost-dispatch regression test passes. No outbox schema invented. |
+| Provider authentication | CloudMailin uses configured Authorization headers. Accept a constant-time Bearer secret check; keep existing local HMAC compatibility. | Unit and signed/Bearer integration tests pass. Public provider setup remains deferred by owner. |
+| Public setup | Domain/MX, live provider configuration and deployment are deferred until project readiness. Continue local implementation. | Explicit owner instruction in this conversation; do not block local work or claim public verification. |
+
+The synthetic policies are a retrieval/evaluation fixture, not a legal policy engine. No claim is made that their numbers reflect current regulation or the consulted insurers. Any new persistence fields require a documented contract and migration rather than being inferred from the reference PDFs.
+
+## Additional implementation decisions — 2026-10-20
+
+- Generic semantic-cache admission and lookup require source-excerpt sentences or fixed courtesy text. This deliberately reduces cache coverage to prevent personal details leaking through model-generated greetings.
+- Claim event dates must be supported by the actual email. Unsupported proposed dates yield an unidentifiable event rather than fabricated eligibility.
+- PostgreSQL checkpoints use durable node receipts; supervisor receipt identity includes route-history length to avoid replay loops. Total model calls remain bounded at eight, including invalid-output retries.
+- Recorded local fixtures use an explicit injected test transport and are labelled in subjects, raw payload provenance and model events. Production never silently substitutes them for live inference.
+- Reviewer approval persists a decision without sending email. Citation checks are deterministic guards; human review and future measured evaluation remain necessary.

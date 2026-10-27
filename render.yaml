@@ -1,0 +1,80 @@
+# Demo-sized Render Blueprint. The free Postgres database expires after 30 days;
+# upgrade it before the demo becomes a long-lived inbox.
+services:
+  - type: web
+    name: dak-insurance-demo-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    numInstances: 1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_ROLE
+        value: web
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dak-insurance-demo-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: dak-insurance-demo-queue
+          property: connectionString
+      - key: CLOUDMAILIN_SECRET
+        sync: false
+      - key: DASHBOARD_PASSWORD
+        sync: false
+      - key: AUTO_SEND_ENABLED
+        value: "false"
+      - key: ALLOW_UNSIGNED_WEBHOOK
+        value: "false"
+      - key: CORPUS_VERSION
+        value: "1"
+
+  - type: worker
+    name: dak-insurance-demo-worker
+    runtime: docker
+    plan: standard
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: python scripts/render_start.py worker
+    numInstances: 1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_ROLE
+        value: worker
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dak-insurance-demo-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: dak-insurance-demo-queue
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CORPUS_VERSION
+        value: "1"
+
+  - type: keyvalue
+    name: dak-insurance-demo-queue
+    plan: free
+    region: singapore
+    ipAllowList: []
+    maxmemoryPolicy: noeviction
+
+databases:
+  - name: dak-insurance-demo-db
+    databaseName: dak_demo
+    user: dak_demo
+    plan: free
+    region: singapore
+    postgresMajorVersion: "16"
+    ipAllowList: []

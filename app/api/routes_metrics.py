@@ -8,10 +8,11 @@ per-email eval_results rows).
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func, select
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Draft, EvalEmail, EvalResult, EvalRun, Run
@@ -24,9 +25,10 @@ TERMINAL_STATUSES = ("pending_review", "approved", "rejected", "escalated", "fai
 
 @router.get("/api/metrics/summary")
 async def metrics_summary(
-    window_days: int = 7, session: AsyncSession = Depends(get_session)
+    session: Annotated[AsyncSession, Depends(get_session)],
+    window_days: int = Query(default=7, ge=1, le=365),
 ) -> dict:
-    since = datetime.now(timezone.utc) - timedelta(days=window_days)
+    since = datetime.now(UTC) - timedelta(days=window_days)
     runs = (await session.execute(select(Run).where(Run.started_at >= since))).scalars().all()
 
     processed = len(runs)
@@ -56,33 +58,24 @@ async def metrics_summary(
     # validator block rate + per-agent blocks from drafts
     draft_rows = (
         await session.execute(
-            select(Draft.run_id, Draft.validation_passed, Run.route)
+            select(Draft.run_id, Draft.validation_passed, Run.route, Draft.sentences)
             .join(Run, Run.id == Draft.run_id)
             .where(Run.started_at >= since)
         )
     ).all()
-    first_attempt = {run_id: passed for run_id, passed, _route in draft_rows}
-    blocked_runs = sum(1 for passed in first_attempt.values() if not passed)
+    blocked_attempts = sum(1 for _, passed, _, _ in draft_rows if not passed)
     blocks_by_agent: dict[str, int] = defaultdict(int)
-    seen_blocked: set[int] = set()
-    for run_id, passed, route in draft_rows:
-        if not passed and route and run_id not in seen_blocked:
-            seen_blocked.add(run_id)
-            blocks_by_agent[route] += 1
-
-    # citation grounding on validated drafts: enforced structurally, so it is
-    # 1.0 unless a passing draft somehow contains an uncited factual sentence.
     grounded_total = grounded_ok = 0
-    for run_id, passed, _route in draft_rows:
+    for _, passed, route, sentences in draft_rows:
         if not passed:
+            if route:
+                blocks_by_agent[route] += 1
             continue
-        sentences = await session.scalar(select(Draft.sentences).where(Draft.run_id == run_id))
-        for s in sentences or []:
-            if s.get("kind") in ("factual", "commitment"):
+        for sentence in sentences or []:
+            if sentence.get("kind") in ("factual", "commitment"):
                 grounded_total += 1
-                if s.get("cite"):
-                    grounded_ok += 1
-    citation_grounding_rate = (grounded_ok / grounded_total) if grounded_total else 1.0
+                grounded_ok += bool(sentence.get("cite"))
+    citation_grounding_rate = grounded_ok / grounded_total if grounded_total else None
 
     def percentile(values: list[int], p: float) -> int | None:
         if not values:
@@ -91,33 +84,42 @@ async def metrics_summary(
         idx = min(len(ordered) - 1, int(round(p / 100 * (len(ordered) - 1))))
         return ordered[idx]
 
-    semantic_hit_rate = (cache_hits / model_calls_total) if model_calls_total else 0.0
+    # Run.cache_hits includes tool-cache activity; model_calls is not the
+    # number of eligible semantic lookups. Do not fabricate a semantic rate.
 
     return {
         "window": f"{window_days}d",
         "emails_processed": processed,
         "by_category": dict(by_category),
-        "escalation_rate": round(escalated / processed, 4) if processed else 0.0,
+        "escalation_rate": round(escalated / processed, 4) if processed else None,
         "escalation_reasons": dict(escalation_reasons),
-        "validator_block_rate": round(blocked_runs / processed, 4) if processed else 0.0,
+        "validator_block_rate": round(blocked_attempts / len(draft_rows), 4)
+        if draft_rows
+        else None,
         "validator_blocks_by_agent": dict(blocks_by_agent),
-        "citation_grounding_rate": round(citation_grounding_rate, 4),
-        "cache": {"semantic_hit_rate": round(semantic_hit_rate, 4)},
+        "citation_grounding_rate": round(citation_grounding_rate, 4)
+        if citation_grounding_rate is not None
+        else None,
+        "cache": {"semantic_hit_rate": None, "hits": cache_hits},
         "latency_ms": {"p50": percentile(durations, 50), "p95": percentile(durations, 95)},
         "tokens": {"prompt": prompt_tokens, "completion": completion_tokens},
-        "model_calls_per_email": round(model_calls_total / processed, 2) if processed else 0.0,
+        "model_calls_per_email": round(model_calls_total / processed, 2) if processed else None,
     }
 
 
 @router.get("/api/metrics/eval/{eval_run_id}")
-async def eval_metrics(eval_run_id: int, session: AsyncSession = Depends(get_session)) -> dict:
+async def eval_metrics(
+    eval_run_id: int, session: Annotated[AsyncSession, Depends(get_session)]
+) -> dict:
     eval_run = await session.get(EvalRun, eval_run_id)
     if eval_run is None:
         raise HTTPException(status_code=404, detail="eval run not found")
 
     results = (
-        await session.execute(select(EvalResult).where(EvalResult.eval_run_id == eval_run_id))
-    ).scalars().all()
+        (await session.execute(select(EvalResult).where(EvalResult.eval_run_id == eval_run_id)))
+        .scalars()
+        .all()
+    )
     if not results:
         return {"error": "no results", "eval_run_id": eval_run_id}
 
@@ -125,11 +127,11 @@ async def eval_metrics(eval_run_id: int, session: AsyncSession = Depends(get_ses
         e.id: e
         for e in (
             await session.execute(
-                select(EvalEmail).where(
-                    EvalEmail.id.in_([x.eval_email_id for x in results])
-                )
+                select(EvalEmail).where(EvalEmail.id.in_([x.eval_email_id for x in results]))
             )
-        ).scalars().all()
+        )
+        .scalars()
+        .all()
     }
 
     n = len(results)
@@ -166,21 +168,23 @@ async def eval_metrics(eval_run_id: int, session: AsyncSession = Depends(get_ses
             pairs.append((float(r.predicted_confidence), bool(r.category_correct)))
 
     # out-of-scope refusal: emails probing unanswerable questions that escalated
-    oos = [r for r in results if (exp := expected.get(r.eval_email_id)) and exp.probes == "out_of_scope"]
+    oos = [
+        r
+        for r in results
+        if (exp := expected.get(r.eval_email_id)) and exp.probes == "out_of_scope"
+    ]
     oos_refused = sum(1 for r in oos if r.predicted_route == "escalation_agent")
 
     ece, bins = _expected_calibration_error(pairs)
 
     return {
         "accuracy_overall": round(acc, 4),
-        "accuracy_by_difficulty": {
-            d: round(sum(v) / len(v), 4) for d, v in by_diff.items() if v
-        },
+        "accuracy_by_difficulty": {d: round(sum(v) / len(v), 4) for d, v in by_diff.items() if v},
         "confusion_matrix": {k: dict(v) for k, v in confusion.items()},
         "route_accuracy": round(route_ok / n, 4),
         "escalation_precision": round(tp_esc / (tp_esc + fp_esc), 4) if tp_esc + fp_esc else None,
         "escalation_recall": round(tp_esc / (tp_esc + fn_esc), 4) if tp_esc + fn_esc else None,
-        "citation_grounding_rate": round(grounded / with_draft, 4) if with_draft else 1.0,
+        "citation_grounding_rate": round(grounded / with_draft, 4) if with_draft else None,
         "out_of_scope_refusal_rate": round(oos_refused / len(oos), 4) if oos else None,
         "calibration": {"ece": ece, "bins": bins},
     }
@@ -213,3 +217,60 @@ def _expected_calibration_error(
             }
         )
     return round(ece, 4), bins_out
+
+
+@router.get("/api/eval/runs")
+async def list_eval_runs(session: Annotated[AsyncSession, Depends(get_session)]) -> dict:
+    runs = (await session.execute(select(EvalRun).order_by(EvalRun.started_at.desc()))).scalars()
+    return {
+        "items": [
+            {
+                "id": r.id,
+                "started_at": r.started_at.isoformat(),
+                "finished_at": r.finished_at.isoformat() if r.finished_at else None,
+                "model_triage": r.model_triage,
+                "model_draft": r.model_draft,
+                "corpus_version": r.corpus_version,
+                "notes": r.notes,
+            }
+            for r in runs
+        ]
+    }
+
+
+@router.get("/api/eval/runs/{eval_run_id}/results")
+async def eval_results(
+    eval_run_id: int,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> dict:
+    if await session.get(EvalRun, eval_run_id) is None:
+        raise HTTPException(status_code=404, detail="eval run not found")
+    rows = (
+        await session.execute(
+            select(EvalResult, EvalEmail)
+            .join(EvalEmail, EvalEmail.id == EvalResult.eval_email_id)
+            .where(EvalResult.eval_run_id == eval_run_id)
+            .order_by(EvalEmail.id)
+        )
+    ).all()
+    return {
+        "total": len(rows),
+        "items": [
+            {
+                "email_id": e.id,
+                "run_id": None,
+                "subject": e.subject,
+                "difficulty": e.difficulty,
+                "expected_category": e.expected_category,
+                "predicted_category": r.predicted_category,
+                "expected_route": e.expected_route,
+                "predicted_route": r.predicted_route,
+                "confidence": float(r.predicted_confidence)
+                if r.predicted_confidence is not None
+                else None,
+                "category_correct": r.category_correct,
+                "route_correct": r.route_correct,
+            }
+            for r, e in rows
+        ],
+    }
