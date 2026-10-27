@@ -1,5 +1,4 @@
-# Demo-sized Render Blueprint. The free Postgres database expires after 30 days;
-# upgrade it before the demo becomes a long-lived inbox.
+# Strictly free Render demo. The free Postgres database expires after 30 days.
 services:
   - type: web
     name: dak-insurance-demo-api
@@ -15,6 +14,18 @@ services:
         value: production
       - key: APP_ROLE
         value: web
+      - key: RUN_INLINE_WORKER
+        value: "true"
+      - key: WORKER_CONCURRENCY
+        value: "1"
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: MKL_NUM_THREADS
+        value: "1"
+      - key: OPENBLAS_NUM_THREADS
+        value: "1"
+      - key: TOKENIZERS_PARALLELISM
+        value: "false"
       - key: DATABASE_URL
         fromDatabase:
           name: dak-insurance-demo-db
@@ -28,38 +39,12 @@ services:
         sync: false
       - key: DASHBOARD_PASSWORD
         sync: false
+      - key: GEMINI_API_KEY
+        sync: false
       - key: AUTO_SEND_ENABLED
         value: "false"
       - key: ALLOW_UNSIGNED_WEBHOOK
         value: "false"
-      - key: CORPUS_VERSION
-        value: "1"
-
-  - type: worker
-    name: dak-insurance-demo-worker
-    runtime: docker
-    plan: standard
-    region: singapore
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    dockerCommand: python scripts/render_start.py worker
-    numInstances: 1
-    envVars:
-      - key: APP_ENV
-        value: production
-      - key: APP_ROLE
-        value: worker
-      - key: DATABASE_URL
-        fromDatabase:
-          name: dak-insurance-demo-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: dak-insurance-demo-queue
-          property: connectionString
-      - key: GEMINI_API_KEY
-        sync: false
       - key: CORPUS_VERSION
         value: "1"
 
