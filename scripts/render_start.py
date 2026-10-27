@@ -1,4 +1,4 @@
-"""Render process entrypoint for the API and its ARQ worker."""
+"""Render entrypoint for the API and its optional in-process ARQ worker."""
 
 from __future__ import annotations
 
@@ -63,6 +63,8 @@ def main() -> None:
         os.execvp("arq", ["arq", "app.workers.process.WorkerSettings"])
     if role != "web":
         raise SystemExit("Expected Render role 'web' or 'worker'")
+    if get_settings().RUN_INLINE_WORKER:
+        run_worker_setup()
     asyncio.run(wait_for_bootstrap())
     port = os.environ.get("PORT", "10000")
     os.execvp(

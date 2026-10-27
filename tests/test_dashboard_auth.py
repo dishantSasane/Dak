@@ -95,3 +95,4 @@ def test_health_is_public_and_returns_unhealthy_status_when_dependencies_fail(mo
         response = client.get("/health")
     assert response.status_code == 503
     assert response.json()["status"] == "degraded"
+    assert response.json()["worker"] is True

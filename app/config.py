@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     APP_ENV: Literal["development", "production"] = "development"
     APP_ROLE: Literal["development", "web", "worker"] = "development"
     DASHBOARD_PASSWORD: str = ""
+    RUN_INLINE_WORKER: bool = False
 
     # --- Models ------------------------------------------------------------
     GEMINI_MODEL_TRIAGE: str = "gemini-3.1-flash-lite"
@@ -89,6 +90,13 @@ class Settings(BaseSettings):
                 )
         if self.APP_ENV == "production" and self.APP_ROLE == "worker" and not self.GEMINI_API_KEY:
             raise ValueError("Production worker role requires GEMINI_API_KEY")
+        if (
+            self.APP_ENV == "production"
+            and self.APP_ROLE == "web"
+            and self.RUN_INLINE_WORKER
+            and not self.GEMINI_API_KEY
+        ):
+            raise ValueError("Production inline worker requires GEMINI_API_KEY")
         return self
 
 

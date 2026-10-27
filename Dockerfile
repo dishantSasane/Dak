@@ -18,7 +18,7 @@ WORKDIR /srv/app
 
 COPY --from=uv /uv /uvx /bin/
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y libgomp1 \
+    && apt-get install --no-install-recommends -y libgomp1 libpq5 \
     && rm -rf /var/lib/apt/lists/*
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
@@ -31,7 +31,9 @@ COPY --from=frontend-build /src/frontend/dist ./frontend/dist
 COPY alembic.ini ./
 COPY alembic ./alembic
 RUN uv sync --frozen --no-dev \
-    && useradd --create-home appuser
+    && useradd --create-home appuser \
+    && mkdir -p /srv/app/.cache/embeddings \
+    && chown -R appuser:appuser /srv/app/.cache
 
 USER appuser
 EXPOSE 10000

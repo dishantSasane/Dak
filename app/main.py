@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -22,7 +24,24 @@ from app.config import get_settings
 
 logging.basicConfig(level=logging.INFO)
 
-app = FastAPI(title="Dak", version="1.0")
+
+@asynccontextmanager
+async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+    """Optionally run ARQ in the web process for Render's free service tier."""
+    if get_settings().RUN_INLINE_WORKER:
+        from app.workers.inline import inline_worker
+
+        async with inline_worker() as task:
+            application.state.inline_worker_task = task
+            try:
+                yield
+            finally:
+                application.state.inline_worker_task = None
+        return
+    yield
+
+
+app = FastAPI(title="Dak", version="1.0", lifespan=lifespan)
 
 
 @app.middleware("http")
@@ -85,12 +104,17 @@ async def health() -> dict | JSONResponse:
         redis_ok = bool(await get_redis().ping())
     except Exception:  # noqa: BLE001
         pass
+    app_task = getattr(app.state, "inline_worker_task", None)
+    worker_ok = app_task is None or not app_task.done()
     result = {
-        "status": "ok" if (db_ok and redis_ok) else "degraded",
+        "status": "ok" if (db_ok and redis_ok and worker_ok) else "degraded",
         "db": db_ok,
         "redis": redis_ok,
+        "worker": worker_ok,
     }
-    return result if db_ok and redis_ok else JSONResponse(status_code=503, content=result)
+    if db_ok and redis_ok and worker_ok:
+        return result
+    return JSONResponse(status_code=503, content=result)
 
 
 _FRONTEND_DIST = Path(__file__).resolve().parents[1] / "frontend" / "dist"
