@@ -11,26 +11,23 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from sentence_transformers import SentenceTransformer
+    from fastembed import TextEmbedding
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 DIMENSIONS = 384
 Embedder = Callable[[list[str]], Awaitable[list[list[float]]]]
 _MODEL_LOCK = threading.Lock()
 
 
 @lru_cache(maxsize=1)
-def _model() -> SentenceTransformer:
-    from sentence_transformers import SentenceTransformer
+def _model() -> TextEmbedding:
+    from fastembed import TextEmbedding
 
     cache = Path(__file__).resolve().parents[2] / ".cache" / "embeddings"
-    return SentenceTransformer(
+    return TextEmbedding(
         MODEL_NAME,
-        revision=MODEL_REVISION,
-        device="cpu",
-        cache_folder=str(cache),
-        trust_remote_code=False,
+        cache_dir=str(cache),
+        threads=1,
     )
 
 
@@ -46,18 +43,15 @@ def validate_embeddings(vectors: list[list[float]], expected: int) -> None:
 
 def _encode(texts: list[str]) -> list[list[float]]:
     with _MODEL_LOCK:
-        vectors = (
-            # Keep peak RAM low for small instances such as Render's 512 MiB
-            # free web service. Corpus bootstrap can embed many clauses at once.
-            _model()
-            .encode(
-                texts,
-                batch_size=1,
-                normalize_embeddings=True,
-                show_progress_bar=False,
-            )
-            .tolist()
-        )
+        # Keep peak RAM low for small instances such as Render's 512 MiB
+        # free web service. Corpus bootstrap can embed many clauses at once.
+        vectors = []
+        for embedding in _model().embed(texts, batch_size=1, parallel=1):
+            vector = [float(value) for value in embedding]
+            norm = math.sqrt(sum(value * value for value in vector))
+            if norm:
+                vector = [value / norm for value in vector]
+            vectors.append(vector)
     validate_embeddings(vectors, len(texts))
     return vectors
 
