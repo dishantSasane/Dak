@@ -309,6 +309,7 @@ async def process_run(
     client: ModelClient | None = None,
     checkpointer: BaseCheckpointSaver | None = None,
     initialize_checkpointer: bool = True,
+    use_postgres_checkpointer: bool = True,
 ) -> RunState:
     async with factory() as session:
         run = await session.get(Run, run_id)
@@ -346,6 +347,8 @@ async def process_run(
 
     if checkpointer is not None:
         return await execute(checkpointer)
+    if not use_postgres_checkpointer:
+        return await execute(None)
     dsn = (
         make_url(get_settings().DATABASE_URL)
         .set(drivername="postgresql")

@@ -63,6 +63,7 @@ async def process_email(ctx: dict, email_id: int) -> int:
                 client=ctx.get("model_client"),
                 checkpointer=ctx.get("checkpointer"),
                 initialize_checkpointer=not ctx.get("checkpointer_schema_ready", False),
+                use_postgres_checkpointer=ctx.get("postgres_checkpointer_enabled", True),
             )
         except ModelRateLimited:
             logger.info("Model quota backoff for run %s", run_id)
@@ -109,10 +110,20 @@ async def reconcile_pending(ctx: dict) -> int:
 
 async def startup(ctx: dict) -> None:
     logging.basicConfig(level=logging.INFO)
-    await setup_checkpoint_schema()
-    ctx["checkpointer_schema_ready"] = True
+    ctx["postgres_checkpointer_enabled"] = not get_settings().RUN_INLINE_WORKER
+    if ctx["postgres_checkpointer_enabled"]:
+        await setup_checkpoint_schema()
+        ctx["checkpointer_schema_ready"] = True
+    else:
+        logger.warning(
+            "Postgres graph checkpointing disabled for inline worker; "
+            "emails and run events remain durable in Postgres"
+        )
     await reconcile_pending(ctx)
-    logger.info("worker ready; checkpoints initialized and pending emails reconciled")
+    if ctx["postgres_checkpointer_enabled"]:
+        logger.info("worker ready; checkpoints initialized and pending emails reconciled")
+    else:
+        logger.info("worker ready; pending emails reconciled")
 
 
 async def shutdown(ctx: dict) -> None:
