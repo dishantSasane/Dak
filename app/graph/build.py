@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from time import monotonic
@@ -30,6 +31,7 @@ from app.models.schemas import Chunk, Draft, TriageAssessment
 from app.tools.base import write_event
 from app.validator.citations import validate_draft
 
+logger = logging.getLogger(__name__)
 Node = Callable[[AgentContext], Awaitable[dict]]
 
 
@@ -288,11 +290,25 @@ def build_graph(
     return builder.compile(checkpointer=checkpointer)
 
 
+async def setup_checkpoint_schema() -> None:
+    """Apply LangGraph's Postgres migrations before the worker accepts jobs."""
+    dsn = (
+        make_url(get_settings().DATABASE_URL)
+        .set(drivername="postgresql")
+        .render_as_string(hide_password=False)
+    )
+    logger.info("initializing LangGraph checkpoint schema")
+    async with AsyncPostgresSaver.from_conn_string(dsn) as saver:
+        await saver.setup()
+    logger.info("LangGraph checkpoint schema ready")
+
+
 async def process_run(
     run_id: int,
     factory: async_sessionmaker[AsyncSession],
     client: ModelClient | None = None,
     checkpointer: BaseCheckpointSaver | None = None,
+    initialize_checkpointer: bool = True,
 ) -> RunState:
     async with factory() as session:
         run = await session.get(Run, run_id)
@@ -336,5 +352,6 @@ async def process_run(
         .render_as_string(hide_password=False)
     )
     async with AsyncPostgresSaver.from_conn_string(dsn) as saver:
-        await saver.setup()
+        if initialize_checkpointer:
+            await saver.setup()
         return await execute(saver)

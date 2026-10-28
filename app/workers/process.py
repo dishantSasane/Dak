@@ -12,7 +12,7 @@ from sqlalchemy import exists, select, text
 from app.config import get_settings
 from app.db.models import Email, Run
 from app.db.session import get_sessionmaker
-from app.graph.build import process_run
+from app.graph.build import process_run, setup_checkpoint_schema
 from app.llm.gemini import ModelRateLimited
 from app.tools.base import write_event
 
@@ -62,6 +62,7 @@ async def process_email(ctx: dict, email_id: int) -> int:
                 factory,
                 client=ctx.get("model_client"),
                 checkpointer=ctx.get("checkpointer"),
+                initialize_checkpointer=not ctx.get("checkpointer_schema_ready", False),
             )
         except ModelRateLimited:
             logger.info("Model quota backoff for run %s", run_id)
@@ -108,8 +109,10 @@ async def reconcile_pending(ctx: dict) -> int:
 
 async def startup(ctx: dict) -> None:
     logging.basicConfig(level=logging.INFO)
+    await setup_checkpoint_schema()
+    ctx["checkpointer_schema_ready"] = True
     await reconcile_pending(ctx)
-    logger.info("worker ready; pending durable emails reconciled")
+    logger.info("worker ready; checkpoints initialized and pending emails reconciled")
 
 
 async def shutdown(ctx: dict) -> None:
