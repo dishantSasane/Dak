@@ -83,11 +83,12 @@ class Settings(BaseSettings):
             if self.ALLOW_UNSIGNED_WEBHOOK:
                 raise ValueError("ALLOW_UNSIGNED_WEBHOOK must be false in production")
         if self.APP_ENV == "production" and self.APP_ROLE == "web":
-            if len(self.DASHBOARD_PASSWORD) < 16 or not self.CLOUDMAILIN_SECRET:
+            if self.DASHBOARD_PASSWORD and len(self.DASHBOARD_PASSWORD) < 16:
                 raise ValueError(
-                    "Production web role requires DASHBOARD_PASSWORD (at least 16 characters) "
-                    "and CLOUDMAILIN_SECRET"
+                    "DASHBOARD_PASSWORD must be at least 16 characters when configured"
                 )
+            if not self.CLOUDMAILIN_SECRET:
+                raise ValueError("Production web role requires CLOUDMAILIN_SECRET")
         if self.APP_ENV == "production" and self.APP_ROLE == "worker" and not self.GEMINI_API_KEY:
             raise ValueError("Production worker role requires GEMINI_API_KEY")
         if (

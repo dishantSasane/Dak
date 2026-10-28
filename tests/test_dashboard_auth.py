@@ -46,12 +46,23 @@ def test_production_rejects_default_role_and_unsigned_webhook():
         Settings(
             **common,
             APP_ROLE="web",
-            DASHBOARD_PASSWORD="a-long-demo-password",
             ALLOW_UNSIGNED_WEBHOOK=True,
         )
 
 
-def test_production_api_requires_reviewer_password(monkeypatch):
+def test_production_rejects_short_dashboard_password():
+    with pytest.raises(ValidationError, match="DASHBOARD_PASSWORD must be at least 16 characters"):
+        Settings(
+            DATABASE_URL="postgresql+asyncpg://user:pass@localhost/demo",
+            REDIS_URL="redis://localhost:6379/0",
+            CLOUDMAILIN_SECRET="test-only",
+            APP_ENV="production",
+            APP_ROLE="web",
+            DASHBOARD_PASSWORD="short",
+        )
+
+
+def test_production_api_requires_reviewer_password_when_configured(monkeypatch):
     settings = Settings(
         DATABASE_URL="postgresql+asyncpg://user:pass@localhost/demo",
         REDIS_URL="redis://localhost:6379/0",
@@ -77,6 +88,24 @@ def test_production_api_requires_reviewer_password(monkeypatch):
         allowed = client.get("/api/auth/check", headers={"Authorization": valid})
         assert allowed.status_code == 200
         assert allowed.json() == {"authenticated": True, "required": True}
+
+
+def test_production_api_is_public_when_reviewer_password_is_not_configured(monkeypatch):
+    settings = Settings(
+        DATABASE_URL="postgresql+asyncpg://user:pass@localhost/demo",
+        REDIS_URL="redis://localhost:6379/0",
+        GEMINI_API_KEY="test-only",
+        CLOUDMAILIN_SECRET="test-only",
+        APP_ENV="production",
+        APP_ROLE="web",
+    )
+    monkeypatch.setattr("app.main.get_settings", lambda: settings)
+
+    with TestClient(app) as client:
+        response = client.get("/api/auth/check")
+
+    assert response.status_code == 200
+    assert response.json() == {"authenticated": True, "required": False}
 
 
 def test_health_is_public_and_returns_unhealthy_status_when_dependencies_fail(monkeypatch):
